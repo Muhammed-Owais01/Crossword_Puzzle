@@ -20,7 +20,7 @@ export default function Index() {
   const resetTime = 2000;
 
   // Sort words by length, descending
-  const sortedAnswers = ["OWAIS", "ALI", "ABSER", "FASIH"].sort((a, b) => b.length - a.length);
+  const sortedAnswers = ["Owais", "Abser", "Ali", "Fasih"].sort((a, b) => b.length - a.length);
 
   const handleCellPress = (rowIndex: number, colIndex: number) => {
     // Set true pressed on the rowIndex and colIndex in array
@@ -60,11 +60,11 @@ export default function Index() {
     const newGrid = [...grid];
     if (isHorizontal) {
       for (let i = 0; i < word.length; i++) {
-        newGrid[row][col + i].letter = word[i]; // Place the letter on the grid horizontally
+        newGrid[row][col + i]!.letter = word[i]; // Place the letter on the grid horizontally
       }
     } else {
       for (let i = 0; i < word.length; i++) {
-        newGrid[row + i][col].letter = word[i]; // Place the letter on the grid vertically
+        newGrid[row + i][col]!.letter = word[i]; // Place the letter on the grid vertically
       }
     }
     return newGrid;
@@ -78,45 +78,37 @@ export default function Index() {
 
   const placeAnswers = (answers: string[]) => {
     let newCrosswordData = [...crosswordData];
-
-    // Place the first word (longest) in the middle, horizontally by default
-    const firstWord = answers[0];
-    newCrosswordData = placeWord(newCrosswordData, firstWord, Math.floor(newCrosswordData.length / 2), 1, true);
-
-    // Loop over remaining words to place them
-    for (let i = 1; i < answers.length; i++) {
-      const word = answers[i];
+  
+    // Place each word randomly in the grid
+    for (const word of answers) {
       let placed = false;
-
-      // Loop over the current grid to find possible intersections
-      outerLoop: for (let row = 0; row < newCrosswordData.length; row++) {
-        for (let col = 0; col < newCrosswordData[0].length; col++) {
-          const gridCell = newCrosswordData[row][col];
-
-          // Check if this grid cell can be used for intersection
-          if (gridCell.letter && word.includes(gridCell.letter)) {
-            // Try placing horizontally at intersection
-            const indexInWord = word.indexOf(gridCell.letter);
-            if (canPlaceWord(newCrosswordData, word, row, col - indexInWord, true)) {
-              newCrosswordData = placeWord(newCrosswordData, word, row, col - indexInWord, true);
-              placed = true;
-              break outerLoop;
+  
+      while (!placed) {
+        const isHorizontal = Math.random() < 0.5; // Randomly choose orientation
+        const row = Math.floor(Math.random() * newCrosswordData.length);
+        const col = Math.floor(Math.random() * newCrosswordData[0].length);
+  
+        // Determine placement based on orientation
+        if (isHorizontal) {
+          if (col + word.length <= newCrosswordData[0].length) {
+            // Check if we can place the word horizontally
+            if (canPlaceWord(newCrosswordData, word, row, col, true)) {
+              newCrosswordData = placeWord(newCrosswordData, word, row, col, true);
+              placed = true; // Mark the word as placed
             }
-            // Try placing vertically at intersection
-            if (canPlaceWord(newCrosswordData, word, row - indexInWord, col, false)) {
-              newCrosswordData = placeWord(newCrosswordData, word, row - indexInWord, col, false);
-              placed = true;
-              break outerLoop;
+          }
+        } else {
+          if (row + word.length <= newCrosswordData.length) {
+            // Check if we can place the word vertically
+            if (canPlaceWord(newCrosswordData, word, row, col, false)) {
+              newCrosswordData = placeWord(newCrosswordData, word, row, col, false);
+              placed = true; // Mark the word as placed
             }
           }
         }
       }
-
-      if (!placed) {
-        console.log(`Could not place the word: ${word}`);
-      }
     }
-
+  
     // Fill empty cells with random letters
     newCrosswordData = newCrosswordData.map(row =>
       row.map(cell => {
@@ -126,9 +118,11 @@ export default function Index() {
         return cell;
       })
     );
-
+  
     setCrosswordData(newCrosswordData);
   };
+  
+  
 
   // The moment component mounts, load the data
   useEffect(() => {
