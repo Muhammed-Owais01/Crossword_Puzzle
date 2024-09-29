@@ -29,6 +29,7 @@ export default function Index() {
   const [render, setRender] = useState<boolean>(false);
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
   const [direction, setDirection] = useState<boolean | null>(null);
+  const pressedAnsRef = useRef<string[]>([])
   const resetTime = 2000;
 
   // Sort words by length, descending
@@ -77,6 +78,8 @@ export default function Index() {
     // make current cell as pressed
     crossWordDataRef.current[rowIndex][colIndex].pressed = true;
 
+    // pressedAnsRef.current.push(crossWordDataRef.current[rowIndex][colIndex].letter)
+
     // for all cells
     for (let i = 0; i < crossWordDataRef.current.length; ++i) {
       for (let j = 0; j < crossWordDataRef.current[0].length; ++j) {
@@ -91,8 +94,11 @@ export default function Index() {
     }
     setSelectedCells(prev => [...prev, { row: rowIndex, col: colIndex }]);
 
+    // Called to check if a user has reached their answer
+    confirmAnswers(rowIndex, colIndex)
+
     // clear previous timer
-    if (timer) clearTimeout(timer);
+    if (timer) {clearTimeout(timer);}
 
     // create new timer
     setTimer(setTimeout(resetGridPresses, resetTime));
@@ -163,6 +169,18 @@ export default function Index() {
 
     setRender(prev => !prev);
   };
+
+  // Called to check if a user has reached an answer
+  const confirmAnswers = (rowIndex: number, colIndex: number) => {
+    // Add the last selection
+    const newSelectedCells = [...selectedCells, { row: rowIndex, col: colIndex }]
+    // Form a string of selected words
+    const combinedString = newSelectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('')
+    // If the string is in answers then make its correct as true
+    if (sortedAnswers.includes(combinedString)) {
+      newSelectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true)
+    }
+  }
   
   // The moment component mounts, load the data
   useEffect(() => {
@@ -172,7 +190,9 @@ export default function Index() {
   useEffect(() => {
     return () => {
       // Reset the timer
-      if (timer) clearTimeout(timer);
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
   }, [timer]);
 
@@ -184,7 +204,7 @@ export default function Index() {
             <Pressable 
               key={colIndex} 
               onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`w-[14.28%] h-[50] justify-center items-center ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-red-800' : 'border yellow'}`}
+              className={`w-[14.28%] h-[50] justify-center items-center ${(cell.pressed || cell.correct) ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-red-800' : 'border yellow'}`}
             >
               <Text>{cell.letter}</Text>
             </Pressable>
