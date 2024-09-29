@@ -6,6 +6,7 @@ interface C_Data {
   letter: string;
   pressed: boolean;
   highlighted: boolean;
+  correct: boolean;
 }
 
 interface Pos {
@@ -19,55 +20,82 @@ export default function Index() {
       letter: '',
       pressed: false,
       highlighted: false,
+      correct: false,
     }))
   );
 
   const crossWordDataRef = useRef<C_Data[][]>(initialCrosswordData);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [render, setRender] = useState<boolean>(false);
-  const [lastSelected, setLastSelected] = useState<Pos | null>(null);
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
+  const [direction, setDirection] = useState<boolean | null>(null);
   const resetTime = 2000;
 
   // Sort words by length, descending
   const sortedAnswers = ["Owais", "Abser", "Ali", "Fasih"].sort((a, b) => b.length - a.length);
 
   const resetGridPresses = () => {
-    crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false })));
-    setLastSelected(null);
+    crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false, highlighted: false })));
+    setDirection(null);
+    setSelectedCells([]);
   }
 
   const handleCellPress = (rowIndex: number, colIndex: number) => {
+    const clearAndReset = () => {
+      if (timer) clearTimeout(timer);
+      resetGridPresses();
+    }
+    let current_direction: boolean | null = direction;
     // check if lastSelected exists
-    if (lastSelected) {
-      // if last is current then do nothing
-      if (lastSelected.row == rowIndex && lastSelected.col == colIndex)
+    const length = selectedCells.length;
+    if (length > 0) {
+      const lastCell = selectedCells[length - 1];
+  
+      // if pressing the same cell, do nothing
+      if (lastCell.row === rowIndex && lastCell.col === colIndex)
         return;
-      /* TODO: have it reset if lastSelected and current are diagonally close as well */
-      // if distance between current and last differs by more than 1 (i.e not the immediate next cell)
-      // clear all presses  
-      if (Math.abs(lastSelected.row - rowIndex) > 1 ||
-          Math.abs(lastSelected.col - colIndex) > 1 ||
-          (Math.abs(lastSelected.row - rowIndex) == 1 && Math.abs(lastSelected.col - colIndex) == 1)
-      ) {
-        if (timer) clearTimeout(timer);
-        resetGridPresses();
+  
+      // if two cells have been selected, determine the direction (horizontal or vertical)
+      if (length === 1) {
+        if (lastCell.row === rowIndex) {
+          setDirection(false);
+          current_direction = false;
+        } else if (lastCell.col === colIndex) {
+          setDirection(true);
+          current_direction = true;
+        } else
+          clearAndReset();
+      } else {
+        // if direction is already set, validate future selections
+        if (current_direction === false && lastCell.row !== rowIndex)
+          clearAndReset();
+        else if (current_direction === true && lastCell.col !== colIndex)
+          clearAndReset();
       }
     }
 
-    // Set true pressed on the rowIndex and colIndex in array
-    crossWordDataRef.current = crossWordDataRef.current.map((row, i) =>
-      row.map((cell, j) => (i === rowIndex && j === colIndex ? { ...cell, pressed: true } : cell))
-    );
-    setLastSelected({ row: rowIndex, col: colIndex });
+    // make current cell as pressed
+    crossWordDataRef.current[rowIndex][colIndex].pressed = true;
+
+    // for all cells
+    for (let i = 0; i < crossWordDataRef.current.length; ++i) {
+      for (let j = 0; j < crossWordDataRef.current[0].length; ++j) {
+        // in case current direction is null, have both current column and row be highlighted
+        // otherwise if it's false, have only the row highlighted
+        // else if it's true, have only the column highlighted
+        crossWordDataRef.current[i][j].highlighted =
+          (current_direction == null && (i == rowIndex || j == colIndex)) ||
+          (current_direction == false && i == rowIndex) ||
+          (current_direction == true && j == colIndex);
+      }
+    }
     setSelectedCells(prev => [...prev, { row: rowIndex, col: colIndex }]);
 
-    // Everytime there is a press reset timer
+    // clear previous timer
     if (timer) clearTimeout(timer);
 
-    const newTimer = setTimeout(resetGridPresses, resetTime);
-
-    setTimer(newTimer);
+    // create new timer
+    setTimer(setTimeout(resetGridPresses, resetTime));
   };
 
   // Helper function to check if the word can fit without breaking other words on the grid
@@ -90,11 +118,11 @@ export default function Index() {
   const placeWord = (grid: C_Data[][], word: string, row: number, col: number, isHorizontal: boolean) => {
     if (isHorizontal) {
       for (let i = 0; i < word.length; i++) {
-        grid[row][col + i]!.letter = word[i]; // Place the letter on the grid horizontally
+        grid[row][col + i].letter = word[i]; // Place the letter on the grid horizontally
       }
     } else {
       for (let i = 0; i < word.length; i++) {
-        grid[row + i][col]!.letter = word[i]; // Place the letter on the grid vertically
+        grid[row + i][col].letter = word[i]; // Place the letter on the grid vertically
       }
     }
     // return grid;
@@ -156,7 +184,7 @@ export default function Index() {
             <Pressable 
               key={colIndex} 
               onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`w-[14.28%] h-[50] justify-center items-center border border-black ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-blue-400' : ''}`}
+              className={`w-[14.28%] h-[50] justify-center items-center ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-red-800' : 'border yellow'}`}
             >
               <Text>{cell.letter}</Text>
             </Pressable>
