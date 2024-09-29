@@ -5,6 +5,7 @@ import '../global.css';
 interface C_Data {
   letter: string;
   pressed: boolean;
+  highlighted: boolean;
 }
 
 interface Pos {
@@ -17,6 +18,7 @@ export default function Index() {
     Array(7).fill(null).map(() => ({
       letter: '',
       pressed: false,
+      highlighted: false,
     }))
   );
 
@@ -37,8 +39,12 @@ export default function Index() {
   const handleCellPress = (rowIndex: number, colIndex: number) => {
     // check if lastSelected exists
     if (lastSelected) {
+      // if last is current then do nothing
       if (lastSelected.row == rowIndex && lastSelected.col == colIndex)
         return;
+      /* TODO: have it reset if lastSelected and current are diagonally close as well */
+      // if distance between current and last differs by more than 1 (i.e not the immediate next cell)
+      // clear all presses  
       if (Math.abs(lastSelected.row - rowIndex) > 1 || Math.abs(lastSelected.col - colIndex) > 1) {
         if (timer) clearTimeout(timer);
         resetGridPresses();
@@ -145,7 +151,7 @@ export default function Index() {
             <Pressable 
               key={colIndex} 
               onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`mr-3 mb-3 w-[50px] h-[50px] flex items-center justify-center ${cell.pressed ? 'bg-green-400' : 'bg-white'}`}
+              className={`mr-3 mb-3 w-[50px] h-[50px] flex items-center justify-center ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-blue-400' : ''}`}
             >
               <Text>{cell.letter}</Text>
             </Pressable>
