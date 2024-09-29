@@ -7,6 +7,11 @@ interface C_Data {
   pressed: boolean;
 }
 
+interface Pos {
+  row: number;
+  col: number;
+}
+
 export default function Index() {
   const initialCrosswordData: C_Data[][] = Array(9).fill(null).map(() =>
     Array(7).fill(null).map(() => ({
@@ -17,24 +22,44 @@ export default function Index() {
 
   const [crosswordData, setCrosswordData] = useState<C_Data[][]>(initialCrosswordData);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [selectedCount, setSelectedCount] = useState<number>(0);
+  const [lastSelected, setLastSelected] = useState<Pos | null>(null);
   const resetTime = 2000;
 
   // Sort words by length, descending
   const sortedAnswers = ["Owais", "Abser", "Ali", "Fasih"].sort((a, b) => b.length - a.length);
 
+  const resetGridPresses = () => {
+    setCrosswordData(prev => prev.map(row => row.map((cell) => ({ ...cell, pressed: false }))));
+    setSelectedCount(0);
+    setLastSelected(null);
+  }
+
   const handleCellPress = (rowIndex: number, colIndex: number) => {
+    // check if lastSelected exists
+    if (lastSelected) {
+      if (lastSelected.row == rowIndex && lastSelected.col == colIndex)
+        return;
+      if (Math.abs(lastSelected.row - rowIndex) > 1 || Math.abs(lastSelected.col - colIndex) > 1) {
+        if (timer) {
+          clearTimeout(timer);
+          resetGridPresses();
+        }
+      }
+    }
+
     // Set true pressed on the rowIndex and colIndex in array
     const newCrosswordData = crosswordData.map((row, i) =>
       row.map((cell, j) => (i === rowIndex && j === colIndex ? { ...cell, pressed: true } : cell))
     );
     setCrosswordData(newCrosswordData);
+    setLastSelected({ row: rowIndex, col: colIndex });
+    setSelectedCount(prev => prev + 1);
 
     // Everytime there is a press reset timer
     if (timer) clearTimeout(timer);
 
-    const newTimer = setTimeout(() => {
-      setCrosswordData((prev) => prev.map(row => row.map((cell) => ({ ...cell, pressed: false }))));
-    }, resetTime);
+    const newTimer = setTimeout(resetGridPresses, resetTime);
 
     setTimer(newTimer);
   };
@@ -87,7 +112,13 @@ export default function Index() {
         const isHorizontal = Math.random() < 0.5; // Randomly choose orientation
         const row = Math.floor(Math.random() * newCrosswordData.length);
         const col = Math.floor(Math.random() * newCrosswordData[0].length);
+
+        if (canPlaceWord(newCrosswordData, word, row, col, isHorizontal)) {
+          newCrosswordData = placeWord(newCrosswordData, word, row, col, isHorizontal);
+          placed = true; // Mark the word as placed
+        }
   
+        /* No need to check if word is within bounds since that is already being checked in the canPlace
         // Determine placement based on orientation
         if (isHorizontal) {
           if (col + word.length <= newCrosswordData[0].length) {
@@ -106,6 +137,7 @@ export default function Index() {
             }
           }
         }
+        */
       }
     }
   
