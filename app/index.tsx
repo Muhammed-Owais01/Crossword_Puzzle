@@ -22,6 +22,7 @@ export default function Index() {
 
   const crossWordDataRef = useRef<C_Data[][]>(initialCrosswordData);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [render, setRender] = useState<boolean>(false);
   const [lastSelected, setLastSelected] = useState<Pos | null>(null);
   const resetTime = 2000;
 
@@ -120,6 +121,8 @@ export default function Index() {
         return cell;
       })
     );
+
+    setRender(prev => !prev);
   };
   
   // The moment component mounts, load the data
