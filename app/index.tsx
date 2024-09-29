@@ -6,6 +6,7 @@ interface C_Data {
   letter: string;
   pressed: boolean;
   highlighted: boolean;
+  correct: boolean;
 }
 
 interface Pos {
@@ -19,6 +20,7 @@ export default function Index() {
       letter: '',
       pressed: false,
       highlighted: false,
+      correct: false,
     }))
   );
 
@@ -27,6 +29,7 @@ export default function Index() {
   const [render, setRender] = useState<boolean>(false);
   const [lastSelected, setLastSelected] = useState<Pos | null>(null);
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
+  const [direction, setDirection] = useState<boolean | null>(null);
   const resetTime = 2000;
 
   // Sort words by length, descending
@@ -35,20 +38,25 @@ export default function Index() {
   const resetGridPresses = () => {
     crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false })));
     setLastSelected(null);
+    setDirection(null);
+    setSelectedCells([]);
   }
 
   const handleCellPress = (rowIndex: number, colIndex: number) => {
     // check if lastSelected exists
-    if (lastSelected) {
+    const length = selectedCells.length;
+    if (length > 0) {
       // if last is current then do nothing
-      if (lastSelected.row == rowIndex && lastSelected.col == colIndex)
+      if (selectedCells[length-1].row == rowIndex && selectedCells[length-1].col == colIndex)
         return;
       /* TODO: have it reset if lastSelected and current are diagonally close as well */
       // if distance between current and last differs by more than 1 (i.e not the immediate next cell)
-      // clear all presses  
-      if (Math.abs(lastSelected.row - rowIndex) > 1 ||
-          Math.abs(lastSelected.col - colIndex) > 1 ||
-          (Math.abs(lastSelected.row - rowIndex) == 1 && Math.abs(lastSelected.col - colIndex) == 1)
+      // clear all presses
+      if (Math.abs(selectedCells[length-1].row - rowIndex) > 1 ||
+          Math.abs(selectedCells[length-1].col - colIndex) > 1 ||
+          (Math.abs(selectedCells[length-1].row - rowIndex) == 1 && Math.abs(selectedCells[length-1].col - colIndex) == 1) ||
+          (direction == true && selectedCells[length-1].col != colIndex) ||
+          (direction == false && selectedCells[length-1].row != rowIndex)
       ) {
         if (timer) clearTimeout(timer);
         resetGridPresses();
@@ -60,7 +68,15 @@ export default function Index() {
       row.map((cell, j) => (i === rowIndex && j === colIndex ? { ...cell, pressed: true } : cell))
     );
     setLastSelected({ row: rowIndex, col: colIndex });
-    setSelectedCells(prev => [...prev, { row: rowIndex, col: colIndex }]);
+    const newSelectedCells = [...selectedCells, { row: rowIndex, col: colIndex }];
+    setSelectedCells(newSelectedCells);
+
+    if (newSelectedCells.length >= 2) {
+      if (newSelectedCells[0].row == rowIndex)
+        setDirection(false);
+      else if (newSelectedCells[0].col == colIndex)
+        setDirection(true);
+    }
 
     // Everytime there is a press reset timer
     if (timer) clearTimeout(timer);
