@@ -29,22 +29,22 @@ export default function Index() {
   const [render, setRender] = useState<boolean>(false);
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
   const [direction, setDirection] = useState<boolean | null>(null);
-  const pressedAnsRef = useRef<string[]>([])
   const resetTime = 2000;
 
   // Sort words by length, descending
   const sortedAnswers = ["Owais", "Abser", "Ali", "Fasih"].sort((a, b) => b.length - a.length);
 
-  const resetGridPresses = () => {
+  const resetGridPresses = (rowIndex: number, colIndex: number) => {
     crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false, highlighted: false })));
     setDirection(null);
+    confirmAnswers([...selectedCells, { row: rowIndex, col: colIndex }]);
     setSelectedCells([]);
   }
 
   const handleCellPress = (rowIndex: number, colIndex: number) => {
     const clearAndReset = () => {
       if (timer) clearTimeout(timer);
-      resetGridPresses();
+      resetGridPresses(rowIndex, colIndex);
     }
     let current_direction: boolean | null = direction;
     // check if lastSelected exists
@@ -78,8 +78,6 @@ export default function Index() {
     // make current cell as pressed
     crossWordDataRef.current[rowIndex][colIndex].pressed = true;
 
-    // pressedAnsRef.current.push(crossWordDataRef.current[rowIndex][colIndex].letter)
-
     // for all cells
     for (let i = 0; i < crossWordDataRef.current.length; ++i) {
       for (let j = 0; j < crossWordDataRef.current[0].length; ++j) {
@@ -94,14 +92,11 @@ export default function Index() {
     }
     setSelectedCells(prev => [...prev, { row: rowIndex, col: colIndex }]);
 
-    // Called to check if a user has reached their answer
-    confirmAnswers(rowIndex, colIndex)
-
     // clear previous timer
     if (timer) {clearTimeout(timer);}
 
     // create new timer
-    setTimer(setTimeout(resetGridPresses, resetTime));
+    setTimer(setTimeout(() => resetGridPresses(rowIndex, colIndex), resetTime));
   };
 
   // Helper function to check if the word can fit without breaking other words on the grid
@@ -171,14 +166,12 @@ export default function Index() {
   };
 
   // Called to check if a user has reached an answer
-  const confirmAnswers = (rowIndex: number, colIndex: number) => {
-    // Add the last selection
-    const newSelectedCells = [...selectedCells, { row: rowIndex, col: colIndex }]
+  const confirmAnswers = (selectedCells: Pos[]) => {
     // Form a string of selected words
-    const combinedString = newSelectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('')
+    const combinedString = selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('')
     // If the string is in answers then make its correct as true
     if (sortedAnswers.includes(combinedString)) {
-      newSelectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true)
+      selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true)
     }
   }
   
