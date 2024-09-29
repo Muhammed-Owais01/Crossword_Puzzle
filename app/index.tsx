@@ -151,12 +151,12 @@ export default function Index() {
   return (
     <View className="flex flex-col items-center justify-center pt-8 pl-3 pr-3 bg-blue-400">
       {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-        <View key={rowIndex} className="flex flex-row">
+        <View key={rowIndex} className="flex flex-row flex-wrap w-full">
           {row.map((cell, colIndex) => (
             <Pressable 
               key={colIndex} 
               onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`mr-3 mb-3 w-[50px] h-[50px] flex items-center justify-center ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-blue-400' : ''}`}
+              className={`w-[14.28%] h-[50] justify-center items-center border border-black ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-blue-400' : ''}`}
             >
               <Text>{cell.letter}</Text>
             </Pressable>
