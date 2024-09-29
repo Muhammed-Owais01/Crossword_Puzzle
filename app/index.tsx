@@ -26,6 +26,7 @@ export default function Index() {
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [render, setRender] = useState<boolean>(false);
   const [lastSelected, setLastSelected] = useState<Pos | null>(null);
+  const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
   const resetTime = 2000;
 
   // Sort words by length, descending
@@ -45,7 +46,10 @@ export default function Index() {
       /* TODO: have it reset if lastSelected and current are diagonally close as well */
       // if distance between current and last differs by more than 1 (i.e not the immediate next cell)
       // clear all presses  
-      if (Math.abs(lastSelected.row - rowIndex) > 1 || Math.abs(lastSelected.col - colIndex) > 1) {
+      if (Math.abs(lastSelected.row - rowIndex) > 1 ||
+          Math.abs(lastSelected.col - colIndex) > 1 ||
+          (Math.abs(lastSelected.row - rowIndex) == 1 && Math.abs(lastSelected.col - colIndex) == 1)
+      ) {
         if (timer) clearTimeout(timer);
         resetGridPresses();
       }
@@ -56,6 +60,7 @@ export default function Index() {
       row.map((cell, j) => (i === rowIndex && j === colIndex ? { ...cell, pressed: true } : cell))
     );
     setLastSelected({ row: rowIndex, col: colIndex });
+    setSelectedCells(prev => [...prev, { row: rowIndex, col: colIndex }]);
 
     // Everytime there is a press reset timer
     if (timer) clearTimeout(timer);
