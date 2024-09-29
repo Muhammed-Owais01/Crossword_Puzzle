@@ -34,16 +34,17 @@ export default function Index() {
   // Sort words by length, descending
   const sortedAnswers = ["Owais", "Abser", "Ali", "Fasih"].sort((a, b) => b.length - a.length);
 
-  const resetGridPresses = () => {
+  const resetGridPresses = (rowIndex: number, colIndex: number) => {
     crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false, highlighted: false })));
     setDirection(null);
+    confirmAnswers([...selectedCells, { row: rowIndex, col: colIndex }]);
     setSelectedCells([]);
   }
 
   const handleCellPress = (rowIndex: number, colIndex: number) => {
     const clearAndReset = () => {
       if (timer) clearTimeout(timer);
-      resetGridPresses();
+      resetGridPresses(rowIndex, colIndex);
     }
     let current_direction: boolean | null = direction;
     // check if lastSelected exists
@@ -92,10 +93,10 @@ export default function Index() {
     setSelectedCells(prev => [...prev, { row: rowIndex, col: colIndex }]);
 
     // clear previous timer
-    if (timer) clearTimeout(timer);
+    if (timer) {clearTimeout(timer);}
 
     // create new timer
-    setTimer(setTimeout(resetGridPresses, resetTime));
+    setTimer(setTimeout(() => resetGridPresses(rowIndex, colIndex), resetTime));
   };
 
   // Helper function to check if the word can fit without breaking other words on the grid
@@ -163,6 +164,16 @@ export default function Index() {
 
     setRender(prev => !prev);
   };
+
+  // Called to check if a user has reached an answer
+  const confirmAnswers = (selectedCells: Pos[]) => {
+    // Form a string of selected words
+    const combinedString = selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('')
+    // If the string is in answers then make its correct as true
+    if (sortedAnswers.includes(combinedString)) {
+      selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true)
+    }
+  }
   
   // The moment component mounts, load the data
   useEffect(() => {
@@ -172,7 +183,9 @@ export default function Index() {
   useEffect(() => {
     return () => {
       // Reset the timer
-      if (timer) clearTimeout(timer);
+      if (timer) {
+        clearTimeout(timer);
+      }
     };
   }, [timer]);
 
@@ -184,7 +197,7 @@ export default function Index() {
             <Pressable 
               key={colIndex} 
               onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`w-[14.28%] h-[50] justify-center items-center ${cell.pressed ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-red-800' : 'border yellow'}`}
+              className={`w-[14.28%] h-[50] justify-center items-center ${(cell.pressed || cell.correct) ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-red-800' : 'border yellow'}`}
             >
               <Text>{cell.letter}</Text>
             </Pressable>
