@@ -69,10 +69,12 @@ export default function Index() {
           clearAndReset();
       } else {
         // if direction is already set, validate future selections
-        if (current_direction === false && lastCell.row !== rowIndex)
+        if ((current_direction === false && lastCell.row !== rowIndex) ||
+            (current_direction === true && lastCell.col !== colIndex)
+        ) {
           clearAndReset();
-        else if (current_direction === true && lastCell.col !== colIndex)
-          clearAndReset();
+          current_direction = null;
+        }
       }
     }
 
