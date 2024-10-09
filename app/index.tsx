@@ -195,7 +195,7 @@ export default function Index() {
   return (
     <LinearGradient
       colors={['#ADD8E6', '#FFB347']} // Light blue to light orange
-      style={{ flex: 1 }} // Make sure it takes up the full screen
+      style={{ flex: 1, paddingTop: '15%' }}
     >
       <View className="flex flex-col items-center justify-center pt-8 pl-3 pr-3">
       {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
