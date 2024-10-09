@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import '../global.css';
 
 interface C_Data {
@@ -32,7 +33,7 @@ export default function Index() {
   const resetTime = 2000;
 
   // Sort words by length, descending
-  const sortedAnswers = ["Owais", "Abser", "Ali", "Fasih"].sort((a, b) => b.length - a.length);
+  const sortedAnswers = ["OWAIS", "ABSER", "ALI", "FASIH"].sort((a, b) => b.length - a.length);
 
   const resetGridPresses = (rowIndex: number, colIndex: number) => {
     crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false, highlighted: false })));
@@ -190,20 +191,29 @@ export default function Index() {
   }, [timer]);
 
   return (
-    <View className="flex flex-col items-center justify-center pt-8 pl-3 pr-3 bg-blue-400">
+    <LinearGradient
+      colors={['#ADD8E6', '#FFB347']} // Light blue to light orange
+      style={{ flex: 1 }} // Make sure it takes up the full screen
+    >
+      <View className="flex flex-col items-center justify-center pt-8 pl-3 pr-3">
       {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-        <View key={rowIndex} className="flex flex-row flex-wrap w-full">
+        <View 
+          key={rowIndex} 
+          className="flex flex-row justify-center gap-1 w-full mb-1" 
+        >
           {row.map((cell, colIndex) => (
             <Pressable 
               key={colIndex} 
               onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`w-[14.28%] h-[50] justify-center items-center ${(cell.pressed || cell.correct) ? 'bg-green-400' : 'bg-white'} ${cell.highlighted ? 'border border-red-800' : 'border yellow'}`}
+              className={`w-[14%] h-[60] justify-center items-center rounded-2xl border-[3px] bg-white
+                ${cell.correct ? 'border-green-500' : cell.pressed ? 'border-orange-300' : cell.highlighted ? 'border-blue-400' : 'border-pink-300'}`}
             >
-              <Text>{cell.letter}</Text>
+              <Text className="font-medium">{cell.letter}</Text>
             </Pressable>
           ))}
         </View>
       ))}
     </View>
+  </LinearGradient>
   );
 }
