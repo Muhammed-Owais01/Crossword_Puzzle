@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import '../global.css';
 import { useFonts } from "expo-font";
@@ -208,38 +208,100 @@ export default function Index() {
     return null;
   }
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: '5%',
+      backgroundColor: 'black',
+      height: '100%',
+      position: 'relative',
+    },
+    logoImage: {
+      position: 'absolute',
+      top: '3%',
+      left: '3%',
+      width: 144, // 36 * 4 = 144px
+      height: 144,
+    },
+    startButton: {
+      position: 'absolute',
+      top: '8%',
+    },
+    motorOilImage: {
+      position: 'absolute',
+      top: '5%',
+      right: '5%',
+    },
+    rowContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      width: '100%',
+      gap: 2,
+    },
+    cell: {
+      width: '10%',
+      height: 75,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+    },
+    borderGreen: {
+      borderColor: 'green',
+    },
+    borderOrange: {
+      borderColor: 'orange',
+    },
+    borderBlue: {
+      borderColor: 'blue',
+    },
+    borderBlack: {
+      borderColor: 'black',
+    },
+    cellText: {
+      fontFamily: 'Picaflor-Bold',
+      fontSize: 48,
+      color: 'white',
+    },
+  });
+
   return (
-    <View 
-    className="flex flex-col items-center justify-center px-[5%] bg-black h-[100%] relative">
-      <Image
-        source={require('../assets/images/PSO_LOGO-01.png')} 
-        className="absolute top-[3%] left-[3%] w-36 h-36"
-      />
+    <View style={styles.container}>
+    <Image
+      source={require('../assets/images/PSO_LOGO-01.png')} 
+      style={styles.logoImage}
+    />
+    <Pressable style={styles.startButton}>
       <Image
         source={require('../assets/images/Start.png')}
-        className="absolute top-[8%]"
       />
-      <Image
-        source={require('../assets/images/MOTOR_OIL.png')} 
-        className="absolute top-[5%] right-[5%]"
-      />
+    </Pressable>
+    <Image
+      source={require('../assets/images/MOTOR_OIL.png')} 
+      style={styles.motorOilImage}
+    />
     {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
       <View 
         key={rowIndex} 
-        className="flex flex-row justify-center w-full gap-[2px]" 
+        style={styles.rowContainer}
       >
         {row.map((cell, colIndex) => (
           <Pressable 
             key={colIndex} 
             onPress={() => handleCellPress(rowIndex, colIndex)} 
-            className={`w-[10%] h-[75] justify-center items-center border-[3px] bg-[#c18500]
-              ${cell.correct ? 'border-green-500' : cell.pressed ? 'border-orange-300' : cell.highlighted ? 'border-blue-400' : 'border-black'}`}
+            style={[
+              styles.cell,
+              { backgroundColor: '#c18500' },
+              cell.correct ? styles.borderGreen : cell.pressed ? styles.borderOrange : cell.highlighted ? styles.borderBlue : styles.borderBlack
+            ]}
           >
-            <Text className="font-['Picaflor-Bold'] text-[48px] text-white">{cell.letter}</Text>
+            <Text style={styles.cellText}>{cell.letter}</Text>
           </Pressable>
         ))}
       </View>
     ))}
   </View>
-  );
+);
 }
