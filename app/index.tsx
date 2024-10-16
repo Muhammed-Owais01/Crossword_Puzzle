@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import * as SplashScreen from 'expo-splash-screen';
 import '../global.css';
+import { useFonts } from "expo-font";
+
+SplashScreen.preventAutoHideAsync();
 
 interface C_Data {
   letter: string;
@@ -16,8 +19,8 @@ interface Pos {
 }
 
 export default function Index() {
-  const initialCrosswordData: C_Data[][] = Array(9).fill(null).map(() =>
-    Array(7).fill(null).map(() => ({
+  const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
+    Array(10).fill(null).map(() => ({
       letter: '',
       pressed: false,
       highlighted: false,
@@ -30,6 +33,9 @@ export default function Index() {
   const [render, setRender] = useState<boolean>(false);
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
   const [direction, setDirection] = useState<boolean | null>(null);
+  const [loaded, error] = useFonts({
+    'Big-Noodle-Titling': require('../assets/fonts/big_noodle_titling.ttf'),
+  });
   const resetTime = 2000;
 
   // Sort words by length, descending
@@ -192,30 +198,36 @@ export default function Index() {
     };
   }, [timer]);
 
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
+
   return (
-    <LinearGradient
-      colors={['#ADD8E6', '#FFB347']} // Light blue to light orange
-      style={{ flex: 1, paddingTop: '15%' }}
-    >
-      <View className="flex flex-col items-center justify-center pt-8 pl-3 pr-3">
-      {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-        <View 
-          key={rowIndex} 
-          className="flex flex-row justify-center gap-1 w-full mb-1" 
-        >
-          {row.map((cell, colIndex) => (
-            <Pressable 
-              key={colIndex} 
-              onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`w-[14%] h-[60] justify-center items-center rounded-2xl border-[3px] bg-white
-                ${cell.correct ? 'border-green-500' : cell.pressed ? 'border-orange-300' : cell.highlighted ? 'border-blue-400' : 'border-pink-300'}`}
-            >
-              <Text className="font-medium">{cell.letter}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ))}
-    </View>
-  </LinearGradient>
+    <View 
+    className="flex flex-col items-center justify-center pl-5 pr-5 bg-black h-[100%]">
+    {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
+      <View 
+        key={rowIndex} 
+        className="flex flex-row justify-center w-full gap-[2px]" 
+      >
+        {row.map((cell, colIndex) => (
+          <Pressable 
+            key={colIndex} 
+            onPress={() => handleCellPress(rowIndex, colIndex)} 
+            className={`w-[10%] h-[60] justify-center items-center border-[3px] bg-[#c18500]
+              ${cell.correct ? 'border-green-500' : cell.pressed ? 'border-orange-300' : cell.highlighted ? 'border-blue-400' : 'border-black'}`}
+          >
+            <Text className="font-['Big-Noodle-Titling'] text-[40px] text-white">{cell.letter}</Text>
+          </Pressable>
+        ))}
+      </View>
+    ))}
+  </View>
   );
 }
