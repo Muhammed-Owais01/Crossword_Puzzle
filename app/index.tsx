@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import * as SplashScreen from 'expo-splash-screen';
 import '../global.css';
+import { useFonts } from "expo-font";
+
+SplashScreen.preventAutoHideAsync();
 
 interface C_Data {
   letter: string;
@@ -16,8 +19,8 @@ interface Pos {
 }
 
 export default function Index() {
-  const initialCrosswordData: C_Data[][] = Array(9).fill(null).map(() =>
-    Array(7).fill(null).map(() => ({
+  const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
+    Array(10).fill(null).map(() => ({
       letter: '',
       pressed: false,
       highlighted: false,
@@ -30,6 +33,9 @@ export default function Index() {
   const [render, setRender] = useState<boolean>(false);
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
   const [direction, setDirection] = useState<boolean | null>(null);
+  const [loaded, error] = useFonts({
+    'Picaflor-Bold': require('../assets/fonts/Picaflor-Bold.otf'),
+  });
   const resetTime = 2000;
 
   // Sort words by length, descending
@@ -192,30 +198,110 @@ export default function Index() {
     };
   }, [timer]);
 
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: '5%',
+      backgroundColor: 'black',
+      height: '100%',
+      position: 'relative',
+    },
+    logoImage: {
+      position: 'absolute',
+      top: '3%',
+      left: '3%',
+      width: 144, // 36 * 4 = 144px
+      height: 144,
+    },
+    startButton: {
+      position: 'absolute',
+      top: '8%',
+    },
+    motorOilImage: {
+      position: 'absolute',
+      top: '5%',
+      right: '5%',
+    },
+    rowContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      width: '100%',
+      gap: 2,
+    },
+    cell: {
+      width: '10%',
+      height: 75,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+    },
+    borderGreen: {
+      borderColor: 'green',
+    },
+    borderOrange: {
+      borderColor: 'orange',
+    },
+    borderBlue: {
+      borderColor: 'blue',
+    },
+    borderBlack: {
+      borderColor: 'black',
+    },
+    cellText: {
+      fontFamily: 'Picaflor-Bold',
+      fontSize: 48,
+      color: 'white',
+    },
+  });
+
   return (
-    <LinearGradient
-      colors={['#ADD8E6', '#FFB347']} // Light blue to light orange
-      style={{ flex: 1, paddingTop: '15%' }}
-    >
-      <View className="flex flex-col items-center justify-center pt-8 pl-3 pr-3">
-      {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-        <View 
-          key={rowIndex} 
-          className="flex flex-row justify-center gap-1 w-full mb-1" 
-        >
-          {row.map((cell, colIndex) => (
-            <Pressable 
-              key={colIndex} 
-              onPress={() => handleCellPress(rowIndex, colIndex)} 
-              className={`w-[14%] h-[60] justify-center items-center rounded-2xl border-[3px] bg-white
-                ${cell.correct ? 'border-green-500' : cell.pressed ? 'border-orange-300' : cell.highlighted ? 'border-blue-400' : 'border-pink-300'}`}
-            >
-              <Text className="font-medium">{cell.letter}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ))}
-    </View>
-  </LinearGradient>
-  );
+    <View style={styles.container}>
+    <Image
+      source={require('../assets/images/PSO_LOGO-01.png')} 
+      style={styles.logoImage}
+    />
+    <Pressable style={styles.startButton}>
+      <Image
+        source={require('../assets/images/Start.png')}
+      />
+    </Pressable>
+    <Image
+      source={require('../assets/images/MOTOR_OIL.png')} 
+      style={styles.motorOilImage}
+    />
+    {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
+      <View 
+        key={rowIndex} 
+        style={styles.rowContainer}
+      >
+        {row.map((cell, colIndex) => (
+          <Pressable 
+            key={colIndex} 
+            onPress={() => handleCellPress(rowIndex, colIndex)} 
+            style={[
+              styles.cell,
+              { backgroundColor: '#c18500' },
+              cell.correct ? styles.borderGreen : cell.pressed ? styles.borderOrange : cell.highlighted ? styles.borderBlue : styles.borderBlack
+            ]}
+          >
+            <Text style={styles.cellText}>{cell.letter}</Text>
+          </Pressable>
+        ))}
+      </View>
+    ))}
+  </View>
+);
 }
