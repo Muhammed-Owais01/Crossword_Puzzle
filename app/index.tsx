@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import '../global.css';
 import { useFonts } from "expo-font";
@@ -34,7 +34,7 @@ export default function Index() {
   const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
   const [direction, setDirection] = useState<boolean | null>(null);
   const [loaded, error] = useFonts({
-    'Big-Noodle-Titling': require('../assets/fonts/big_noodle_titling.ttf'),
+    'Picaflor-Bold': require('../assets/fonts/Picaflor-Bold.otf'),
   });
   const resetTime = 2000;
 
@@ -210,7 +210,19 @@ export default function Index() {
 
   return (
     <View 
-    className="flex flex-col items-center justify-center pl-5 pr-5 bg-black h-[100%]">
+    className="flex flex-col items-center justify-center px-[5%] bg-black h-[100%] relative">
+      <Image
+        source={require('../assets/images/PSO_LOGO-01.png')} 
+        className="absolute top-[3%] left-[3%] w-36 h-36"
+      />
+      <Image
+        source={require('../assets/images/Start.png')}
+        className="absolute top-[8%]"
+      />
+      <Image
+        source={require('../assets/images/MOTOR_OIL.png')} 
+        className="absolute top-[5%] right-[5%]"
+      />
     {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
       <View 
         key={rowIndex} 
@@ -220,10 +232,10 @@ export default function Index() {
           <Pressable 
             key={colIndex} 
             onPress={() => handleCellPress(rowIndex, colIndex)} 
-            className={`w-[10%] h-[60] justify-center items-center border-[3px] bg-[#c18500]
+            className={`w-[10%] h-[75] justify-center items-center border-[3px] bg-[#c18500]
               ${cell.correct ? 'border-green-500' : cell.pressed ? 'border-orange-300' : cell.highlighted ? 'border-blue-400' : 'border-black'}`}
           >
-            <Text className="font-['Big-Noodle-Titling'] text-[40px] text-white">{cell.letter}</Text>
+            <Text className="font-['Picaflor-Bold'] text-[48px] text-white">{cell.letter}</Text>
           </Pressable>
         ))}
       </View>
