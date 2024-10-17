@@ -41,7 +41,7 @@ export default function CrossWord() {
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
     const [progress] = useState(new Animated.Value(0)); // Timer progress bar
     const resetTime = 1000;
-    const gameDuration = 1000;
+    const gameDuration = 30000;
 
     // Sort words by length, descending
     const sortedAnswers = [
