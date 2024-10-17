@@ -1,0 +1,140 @@
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { Alert, Dimensions, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+const { width, height } = Dimensions.get('screen')
+
+export default function UserEntry() {
+    const [name, setName] = useState<string>('');
+    const [contact, setContact] = useState<string>('');
+
+    const handlePressPlay = () => {
+        Alert.alert(
+            'Missing info',
+            'Name and/or Contact info not provided. Do you still want to play?',
+            [
+                {
+                    text: 'No',
+                    style: 'cancel'
+                },
+                {
+                    text: 'Yes',
+                    style: 'destructive'
+                }
+            ]
+        );
+    };
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.logoContainer}>
+                <View
+                    style={[
+                        {
+                            width: '100%',
+                            height: '60%'
+                        },
+                        styles.imageContainer
+                    ]}
+                >
+                    <Image
+                        source={require('../assets/images/PSO_LOGO-01.png')}
+                        style={styles.image}
+                        resizeMode="contain"
+                    />
+                </View>
+                <View
+                    style={[
+                        {
+                            width: '100%',
+                            height: '40%'
+                        },
+                        styles.imageContainer
+                    ]}
+                >
+                    <Image
+                        source={require('../assets/images/MOTOR_OIL.png')}
+                        style={styles.image}
+                        resizeMode="contain"
+                    />
+                </View>
+                <View 
+                    style={[
+                        {
+                            width: '100%',
+                            height: '70%',
+                        },
+                        styles.imageContainer
+                    ]}
+                >
+                    <Image
+                        source={require('../assets/images/word_search.png')}
+                        style={styles.image}
+                        resizeMode="contain"
+                    />
+                </View>
+            </View>
+            <View style={styles.inputContainer}>
+                <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    style={styles.input}
+                    placeholder="Name:"
+                    placeholderTextColor="black"
+                />
+                <TextInput
+                    value={contact}
+                    onChangeText={setContact}
+                    style={styles.input}
+                    placeholder="Contact:"
+                    placeholderTextColor="black"
+                />
+                <View style={styles.inputContainer}>
+                    <Pressable onPress={handlePressPlay}>
+                        <Text style={styles.button}>Play</Text>
+                    </Pressable>
+                </View>
+            </View>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        backgroundColor: 'black',
+    },
+    logoContainer: {
+        width: '100%',
+        height: '20%',
+    },
+    imageContainer: {
+        marginTop: 30
+    },
+    image: {
+        width: '100%',
+        height: '100%',
+    },
+    inputContainer: {
+        width: '100%',
+        alignItems: 'center',
+    },
+    input: {
+        fontSize: 35,
+        fontWeight: '700',
+        width: width * 0.8,
+        height: height * 0.06,
+        margin: '3%',
+        paddingHorizontal: '2%',
+        borderRadius: 15,
+        backgroundColor: 'white',
+        color: 'black',
+    },
+    button: {
+        fontSize: 35,
+        color: 'white',
+        alignSelf: 'center',
+    },
+});

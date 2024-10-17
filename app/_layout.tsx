@@ -1,16 +1,22 @@
+import { useLoadAssets } from "@/hooks/useLoadAssets";
 import { Stack } from "expo-router";
-import '../global.css'
 
 export default function RootLayout() {
-  return (
-    <Stack>
-      <Stack.Screen
-        name="index"
-        options={{
-          title: 'CrossWord',
-          headerShown: false,
-        }}
-      />
-    </Stack>
-  );
+    const { isLoaded } = useLoadAssets();
+
+    if (!isLoaded)
+        return null;
+
+    return (
+        <Stack>
+            <Stack.Screen
+                name="index"
+                options={{ headerShown: false, }}
+            />
+            <Stack.Screen
+                name="crossword"
+                options={{ headerShown: false, }}
+            />
+        </Stack>
+    );
 }
