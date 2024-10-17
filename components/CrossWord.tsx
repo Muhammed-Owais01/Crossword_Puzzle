@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams, useNavigation, usePathname } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Image, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
 
@@ -22,6 +22,8 @@ interface Bottom_Data {
 }
 
 export default function CrossWord() {
+    const navigation = useNavigation();
+    const { time }: { time?: number } = useLocalSearchParams();
     const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
         Array(10).fill(null).map(() => ({
             letter: '',
@@ -41,7 +43,7 @@ export default function CrossWord() {
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
     const [progress] = useState(new Animated.Value(0)); // Timer progress bar
     const resetTime = 1000;
-    const gameDuration = 1000;
+    const gameDuration = time ? time * 1000 : 30000;
 
     // Sort words by length, descending
     const sortedAnswers = [
@@ -222,6 +224,15 @@ export default function CrossWord() {
     }, []);
 
     useEffect(() => {
+        // navigation.addListener('beforeRemove', (e) => {
+        //     e.preventDefault();
+
+        //     if (gameStarted)
+        //         return;
+
+        //     navigation.dispatch(e.data.action);
+        // })
+
         return () => {
             // Reset the timer
             if (timer) {

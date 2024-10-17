@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import { Alert, Dimensions, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import Options from './Options';
 
 const { width, height } = Dimensions.get('screen')
 
 export default function UserEntry() {
     const [name, setName] = useState<string>('');
     const [contact, setContact] = useState<string>('');
+    const [time, setTime] = useState<number>(30);
 
     const handlePressPlay = () => {
         if (!name.length || !contact.length) {
@@ -23,7 +25,7 @@ export default function UserEntry() {
                     {
                         text: 'Yes',
                         style: 'destructive',
-                        onPress: () => router.navigate('/crossword')
+                        onPress: () => router.navigate(`/crossword?time=${time}`)
                     }
                 ]
             );
@@ -31,7 +33,7 @@ export default function UserEntry() {
         }
 
         writeCsv()
-        .then(() => router.navigate('/crossword'))
+        .then(() => router.navigate(`/crossword?time=${time}`))
         .catch(console.log);
     };
 
@@ -55,6 +57,7 @@ export default function UserEntry() {
 
     return (
         <View style={styles.container}>
+            <Options time={time} setTime={setTime} />
             <View style={styles.logoContainer}>
                 <View
                     style={[
