@@ -16,6 +16,11 @@ interface Pos {
     col: number;
 }
 
+interface Bottom_Data {
+    word: string,
+    pressed: boolean
+}
+
 export default function CrossWord() {
     const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
         Array(10).fill(null).map(() => ({
@@ -28,13 +33,15 @@ export default function CrossWord() {
     const crossWordDataRef = useRef<C_Data[][]>(initialCrosswordData);
     const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
     const [render, setRender] = useState<boolean>(false);
+    const bottomWordsRef = useRef<Bottom_Data[]>([]);
+    // const [bottomWords, setBottomWords] = useState<Bottom_Data[]>([]);
     const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
     const [selectedAnswers, setSelectedAnswers] = useState<number>(0);
     const [direction, setDirection] = useState<boolean | null>(null);
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
     const [progress] = useState(new Animated.Value(0)); // Timer progress bar
     const resetTime = 1000;
-    const gameDuration = 30000;
+    const gameDuration = 1000;
 
     // Sort words by length, descending
     const sortedAnswers = [
@@ -193,6 +200,8 @@ export default function CrossWord() {
         // If the string is in answers then make its correct as true
         if (sortedAnswers.includes(combinedString)) {
             selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true);
+            const index = bottomWordsRef.current.findIndex(item => item.word === combinedString);
+            if (index !== -1) bottomWordsRef.current[index].pressed = true;
             const selected_answers: number = selectedAnswers + 1;
             setSelectedAnswers(selected_answers);
             if (selected_answers === sortedAnswers.length) {
@@ -204,6 +213,11 @@ export default function CrossWord() {
 
     // The moment component mounts, load the data
     useEffect(() => {
+        const bottomDataArray: Bottom_Data[] = sortedAnswers.map(answer => ({
+            word: answer,
+            pressed: false,
+        }))
+        bottomWordsRef.current = bottomDataArray;
         placeAnswers(sortedAnswers);
     }, []);
 
@@ -251,7 +265,7 @@ export default function CrossWord() {
                             style={[
                                 styles.cell,
                                 { backgroundColor: '#c18500' },
-                                cell.correct ? styles.borderGreen : cell.pressed ? styles.borderOrange : cell.highlighted ? styles.borderBlue : styles.borderBlack
+                                cell.correct ? styles.bgColorLightGreen : cell.pressed ? styles.bgColorLightOrange : cell.highlighted ? styles.bgColorLightBlue : { backgroundColor: '#c18500' }
                             ]}
                         >
                         <Text style={styles.cellText}>{cell.letter}</Text>
@@ -261,8 +275,8 @@ export default function CrossWord() {
                 ))}
             </View>
             <View style={styles.wordsContainer}>
-                {sortedAnswers.map((word, index) => (
-                    <Text key={index} style={styles.wordText}>{word}</Text>
+                {bottomWordsRef.current.map((word, index) => (
+                    <Text key={index} style={[styles.wordText, word.pressed ? styles.colorGreen : styles.colorWhite]}>{word.word}</Text>
                 ))}
             </View>
         </View>
@@ -328,6 +342,21 @@ const styles = StyleSheet.create({
     },
     borderBlack: {
         borderColor: 'black',
+    },
+    bgColorLightGreen: {
+        backgroundColor: '#54b54a',
+    },
+    bgColorLightBlue: {
+        backgroundColor: '#4372d7',
+    },
+    bgColorLightOrange: {
+        backgroundColor: '#f0b73c',
+    },
+    colorGreen: {
+        color: 'green',
+    },
+    colorWhite: {
+        color: 'white',
     },
     cellText: {
         fontFamily: 'Picaflor-Bold',
