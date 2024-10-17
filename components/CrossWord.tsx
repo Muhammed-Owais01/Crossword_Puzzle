@@ -1,4 +1,4 @@
-import { Link, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -15,7 +15,6 @@ interface Pos {
 }
 
 export default function CrossWord() {
-    const navigation = useNavigation();
     const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
         Array(10).fill(null).map(() => ({
             letter: '',
@@ -191,17 +190,15 @@ export default function CrossWord() {
         };
     }, [timer]);
 
-    // useEffect(() => {
-    //     navigation.addListener('beforeRemove', e => e.preventDefault());
-    // }, []);
-
     return (
         <View style={styles.container}>
             <Image
                 source={require('../assets/images/PSO_LOGO-01.png')} 
                 style={styles.logoImage}
             />
-            <Pressable style={styles.startButton}>
+            <Pressable
+                onPress={() => router.navigate('/looser')}
+                style={styles.startButton}>
                 <Image source={require('../assets/images/Start.png')}/>
             </Pressable>
             <Image
@@ -254,17 +251,17 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '3%',
         left: '3%',
-        width: 144, // 36 * 4 = 144px
-        height: 144,
+        width: 108, // 36 * 4 = 144px
+        height: 108,
     },
     startButton: {
         position: 'absolute',
-        top: '8%',
+        top: '10%',
     },
     motorOilImage: {
         position: 'absolute',
         top: '5%',
-        right: '5%',
+        right: '5%'
     },
     crosswordContainer: {
         marginTop: 300,
@@ -273,14 +270,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         width: '100%',
-        gap: 2,
     },
     cell: {
-        width: '10%',
-        height: 75,
-        justifyContent: 'center',
+        width: 70,
+        height: 70,
         alignItems: 'center',
-        borderWidth: 3,
+        borderWidth: 2,
     },
     borderGreen: {
         borderColor: 'green',
@@ -303,15 +298,15 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        maxHeight: 250,
+        maxHeight: '15%',
         alignItems: 'flex-start',
         margin: 20,
-        width: '80%',
+        width: '100%',
     },
     wordText: {
-        fontSize: 26,
+        fontSize: 30,
+        fontWeight: '600',
         color: 'white',
-        marginBottom: 10,
         marginRight: 200,
     },
 });
