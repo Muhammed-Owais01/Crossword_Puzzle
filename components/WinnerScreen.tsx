@@ -1,9 +1,36 @@
+import { Audio } from "expo-av";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { Dimensions, ImageBackground, Pressable, Text, View, StyleSheet } from "react-native";
 
 const { width, height } = Dimensions.get('screen');
 
 export default function WinnerScreen() {
+    const [sound, setSound] = useState<Audio.Sound>();
+
+    useEffect(() => {
+        // Function to load and play the sound
+        async function playSound() {
+            console.log('Loading Sound');
+            const { sound } = await Audio.Sound.createAsync(
+                require('../assets/audio/confetti_sound.mp3')
+            );
+            setSound(sound);
+
+            console.log('Playing Sound');
+            await sound.playAsync();
+        }
+
+        playSound(); // Play sound on component mount
+
+        return () => {
+            // Unload sound when component unmounts to avoid memory leaks
+            if (sound) {
+                sound.unloadAsync();
+            }
+        };
+    }, []);
+
     return (
         <View style={styles.container}>
             <ImageBackground
