@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
-import WinnerScreen from "@/components/WinnerScreen";
+import LoserScreen from "@/components/LooserScreen";
 
-export default function WinnerModal() {
+export default function LoserModal() {
     return (
-        <WinnerScreen />
+        <LoserScreen />
     );
 }
 
