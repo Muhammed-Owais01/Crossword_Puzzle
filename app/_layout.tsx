@@ -17,6 +17,12 @@ export default function RootLayout() {
                 name="crossword"
                 options={{ headerShown: false, }}
             />
+            <Stack.Screen 
+                name="winner"
+                options={{
+                    presentation: 'modal'
+                }}
+            />
         </Stack>
     );
 }
