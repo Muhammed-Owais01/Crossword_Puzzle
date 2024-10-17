@@ -1,6 +1,8 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Dimensions, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 
 const { width, height } = Dimensions.get('screen')
 
@@ -9,7 +11,7 @@ export default function UserEntry() {
     const [contact, setContact] = useState<string>('');
 
     const handlePressPlay = () => {
-        if (!name.length || !contact.length)
+        if (!name.length || !contact.length) {
             Alert.alert(
                 'Missing info',
                 'Name and/or Contact info not provided. Do you still want to play?',
@@ -25,9 +27,31 @@ export default function UserEntry() {
                     }
                 ]
             );
-        else
-            router.navigate('/crossword');
+            return;
+        }
+
+        writeCsv()
+        .then(() => router.navigate('/crossword'))
+        .catch(console.log);
     };
+
+    const writeCsv = async () => {
+        const directoryUri = FileSystem.documentDirectory;
+        const fileUri = directoryUri + `players_data.csv`;
+
+        let content: string = '';
+        try {
+            // if file exists
+            const file_content = await FileSystem.readAsStringAsync(fileUri);
+            content = `${file_content}${name},${contact}\n`;
+        } catch (error: any) {
+            // if file doesn't exist
+            content = `name,contact\n${name},${contact}\n`;
+        } finally {
+            console.log(content);
+            await FileSystem.writeAsStringAsync(fileUri, content);
+        }
+    }
 
     return (
         <View style={styles.container}>
