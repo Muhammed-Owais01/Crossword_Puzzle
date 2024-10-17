@@ -1,10 +1,20 @@
 import { useLoadAssets } from "@/hooks/useLoadAssets";
 import { Stack } from "expo-router";
+import { useEffect, useState } from "react";
+import * as MediaLibrary from 'expo-media-library';
 
 export default function RootLayout() {
     const { isLoaded } = useLoadAssets();
+    const [granted, setGranted] = useState<boolean | null>(null);
 
-    if (!isLoaded)
+    useEffect(() => {  
+        (async () => {
+            const perm = await MediaLibrary.requestPermissionsAsync();
+            setGranted(perm.granted);
+        })();
+    }, []);
+
+    if (!isLoaded || granted === false)
         return null;
 
     return (
