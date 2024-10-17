@@ -20,7 +20,8 @@ export default function RootLayout() {
             <Stack.Screen 
                 name="winner"
                 options={{
-                    presentation: 'modal'
+                    presentation: 'modal',
+                    headerShown: false
                 }}
             />
         </Stack>
