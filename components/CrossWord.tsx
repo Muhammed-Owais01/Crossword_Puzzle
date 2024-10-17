@@ -234,7 +234,6 @@ export default function CrossWord() {
                 {sortedAnswers.map((word, index) => (
                     <Text key={index} style={styles.wordText}>{word}</Text>
                 ))}
-            <Link href='/looser' style={{fontSize: 24, color: 'white'}}>WINNER</Link>
             </View>
         </View>
     );
