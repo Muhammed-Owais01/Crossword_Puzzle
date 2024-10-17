@@ -24,8 +24,9 @@ export default function WinnerScreen() {
         playSound(); // Play sound on component mount
 
         return () => {
-            // Unload sound when component unmounts to avoid memory leaks
+            // Unload sound when component unmounts to avoid memory leaks and stop the sound
             if (sound) {
+                sound.stopAsync();
                 sound.unloadAsync();
             }
         };
@@ -60,7 +61,8 @@ const styles = StyleSheet.create({
     centeredView: {
         position: 'absolute',
         bottom: '20%',
-        left: '44%'
+        left: '44%',
+        width: '70%',
     },
     text: {
         fontSize: 37,
