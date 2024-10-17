@@ -14,9 +14,6 @@ export default function LoserScreen() {
                     <Pressable onPress={() => router.navigate('/')}>
                         <Text style={styles.text}>Home</Text>
                     </Pressable>
-                    <Pressable onPress={() => router.navigate('/crossword')}>
-                        <Text style={styles.text}>Play Again</Text>
-                    </Pressable>
                 </View>
             </ImageBackground>
         </View>

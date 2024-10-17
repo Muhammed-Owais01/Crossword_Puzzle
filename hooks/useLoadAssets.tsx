@@ -7,7 +7,8 @@ SplashScreen.preventAutoHideAsync();
 export function useLoadAssets() {
     const [fontSuccess, fontError] = useFonts({
         'Picaflor-Bold': require('../assets/fonts/Picaflor-Bold.otf'),
-      });
+        'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+    });
 
     useEffect(() => {
         if (fontError) throw fontError;
