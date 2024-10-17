@@ -9,6 +9,7 @@ export default function WinnerScreen() {
             <ImageBackground
                 source={require('../assets/images/winner_screen.png')}
                 style={styles.backgroundImage}
+                resizeMode='contain'
             >
                 <View style={styles.centeredView}>
                     <Pressable onPress={() => router.navigate('/')}>
@@ -30,10 +31,9 @@ const styles = StyleSheet.create({
         height: height,
     },
     centeredView: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center', 
-        marginTop: 220
+        position: 'absolute',
+        bottom: '20%',
+        left: '44%'
     },
     text: {
         fontSize: 37,

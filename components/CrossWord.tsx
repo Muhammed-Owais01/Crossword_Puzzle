@@ -1,6 +1,8 @@
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Image, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
+
+const { width } = Dimensions.get('screen');
 
 interface C_Data {
     letter: string;
@@ -27,11 +29,29 @@ export default function CrossWord() {
     const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
     const [render, setRender] = useState<boolean>(false);
     const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
+    const [selectedAnswers, setSelectedAnswers] = useState<number>(0);
     const [direction, setDirection] = useState<boolean | null>(null);
-    const resetTime = 2000;
+    const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
+    const [progress] = useState(new Animated.Value(0)); // Timer progress bar
+    const resetTime = 1000;
+    const gameDuration = 30000;
 
     // Sort words by length, descending
-    const sortedAnswers = ["CARIENT", "DEO", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"].sort((a, b) => b.length - a.length);
+    const sortedAnswers = [
+        "DEO", "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
+    ].sort((a, b) => b.length - a.length);
+
+    const startGame = () => {
+        setGameStarted(true);
+
+        Animated.timing(progress, {
+            toValue: 1,
+            duration: gameDuration,
+            useNativeDriver: false,
+        }).start(() => {
+            router.navigate('/looser');
+        });
+    };
 
     const resetGridPresses = (rowIndex: number, colIndex: number) => {
         crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false, highlighted: false })));
@@ -172,7 +192,13 @@ export default function CrossWord() {
         const combinedString = selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('')
         // If the string is in answers then make its correct as true
         if (sortedAnswers.includes(combinedString)) {
-            selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true)
+            selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true);
+            const selected_answers: number = selectedAnswers + 1;
+            setSelectedAnswers(selected_answers);
+            if (selected_answers === sortedAnswers.length) {
+                setGameStarted(false);
+                router.navigate('/winner');
+            }
         }
     }
 
@@ -196,11 +222,18 @@ export default function CrossWord() {
                 source={require('../assets/images/PSO_LOGO-01.png')} 
                 style={styles.logoImage}
             />
-            <Pressable
-                onPress={() => router.navigate('/looser')}
-                style={styles.startButton}>
-                <Image source={require('../assets/images/Start.png')}/>
-            </Pressable>
+            {!gameStarted ?
+                <Pressable
+                    onPress={startGame}
+                    style={styles.startButton}>
+                    <Image source={require('../assets/images/Start.png')}/>
+                </Pressable>
+            :
+                <Animated.View style={[styles.progressBar, { width: progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, width]
+                })}]} />
+        }
             <Image
                 source={require('../assets/images/MOTOR_OIL.png')} 
                 style={styles.motorOilImage}
@@ -214,7 +247,7 @@ export default function CrossWord() {
                     {row.map((cell, colIndex) => (
                         <Pressable 
                             key={colIndex} 
-                            onPress={() => handleCellPress(rowIndex, colIndex)} 
+                            onPress={() => gameStarted ? handleCellPress(rowIndex, colIndex) : null } 
                             style={[
                                 styles.cell,
                                 { backgroundColor: '#c18500' },
@@ -251,12 +284,19 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '3%',
         left: '3%',
-        width: 108, // 36 * 4 = 144px
+        width: 108,
         height: 108,
     },
     startButton: {
         position: 'absolute',
         top: '10%',
+    },
+    progressBar: {
+        height: 25,
+        backgroundColor: 'green',
+        position: 'absolute',
+        top: '20%',
+        left: 0,
     },
     motorOilImage: {
         position: 'absolute',
@@ -305,6 +345,7 @@ const styles = StyleSheet.create({
     },
     wordText: {
         fontSize: 30,
+        fontFamily: 'Poppins-Medium',
         fontWeight: '600',
         color: 'white',
         marginRight: 200,
