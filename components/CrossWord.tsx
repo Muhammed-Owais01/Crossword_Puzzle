@@ -1,4 +1,4 @@
-import { useNavigation } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -16,8 +16,8 @@ interface Pos {
 
 export default function CrossWord() {
     const navigation = useNavigation();
-    const initialCrosswordData: C_Data[][] = Array(9).fill(null).map(() =>
-        Array(7).fill(null).map(() => ({
+    const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
+        Array(10).fill(null).map(() => ({
             letter: '',
             pressed: false,
             highlighted: false,
@@ -32,7 +32,7 @@ export default function CrossWord() {
     const resetTime = 2000;
 
     // Sort words by length, descending
-    const sortedAnswers = ["CROSS", "WORD", "GAME", "DEMO"].sort((a, b) => b.length - a.length);
+    const sortedAnswers = ["CARIENT", "DEO", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"].sort((a, b) => b.length - a.length);
 
     const resetGridPresses = (rowIndex: number, colIndex: number) => {
         crossWordDataRef.current = crossWordDataRef.current.map(row => row.map((cell) => ({ ...cell, pressed: false, highlighted: false })));
@@ -197,37 +197,44 @@ export default function CrossWord() {
 
     return (
         <View style={styles.container}>
-        <Image
-            source={require('../assets/images/PSO_LOGO-01.png')} 
-            style={styles.logoImage}
-        />
-        <Pressable style={styles.startButton}>
-            <Image source={require('../assets/images/Start.png')}/>
-        </Pressable>
-        <Image
-            source={require('../assets/images/MOTOR_OIL.png')} 
-            style={styles.motorOilImage}
-        />
-        {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-            <View 
-                key={rowIndex}
-                style={styles.rowContainer}
-            >
-            {row.map((cell, colIndex) => (
-                <Pressable 
-                    key={colIndex} 
-                    onPress={() => handleCellPress(rowIndex, colIndex)} 
-                    style={[
-                        styles.cell,
-                        { backgroundColor: '#c18500' },
-                        cell.correct ? styles.borderGreen : cell.pressed ? styles.borderOrange : cell.highlighted ? styles.borderBlue : styles.borderBlack
-                    ]}
-                >
-                <Text style={styles.cellText}>{cell.letter}</Text>
-                </Pressable>
-            ))}
+            <Image
+                source={require('../assets/images/PSO_LOGO-01.png')} 
+                style={styles.logoImage}
+            />
+            <Pressable style={styles.startButton}>
+                <Image source={require('../assets/images/Start.png')}/>
+            </Pressable>
+            <Image
+                source={require('../assets/images/MOTOR_OIL.png')} 
+                style={styles.motorOilImage}
+            />
+            <View style={styles.crosswordContainer}>
+                {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
+                    <View 
+                        key={rowIndex}
+                        style={styles.rowContainer}
+                    >
+                    {row.map((cell, colIndex) => (
+                        <Pressable 
+                            key={colIndex} 
+                            onPress={() => handleCellPress(rowIndex, colIndex)} 
+                            style={[
+                                styles.cell,
+                                { backgroundColor: '#c18500' },
+                                cell.correct ? styles.borderGreen : cell.pressed ? styles.borderOrange : cell.highlighted ? styles.borderBlue : styles.borderBlack
+                            ]}
+                        >
+                        <Text style={styles.cellText}>{cell.letter}</Text>
+                        </Pressable>
+                    ))}
+                    </View>
+                ))}
             </View>
-        ))}
+            <View style={styles.wordsContainer}>
+                {sortedAnswers.map((word, index) => (
+                    <Text key={index} style={styles.wordText}>{word}</Text>
+                ))}
+            </View>
         </View>
     );
 }
@@ -238,7 +245,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingHorizontal: '5%',
+        paddingHorizontal: 50,
         backgroundColor: 'black',
         height: '100%',
         position: 'relative',
@@ -258,6 +265,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: '5%',
         right: '5%',
+    },
+    crosswordContainer: {
+        marginTop: 300,
     },
     rowContainer: {
         flexDirection: 'row',
@@ -288,5 +298,20 @@ const styles = StyleSheet.create({
         fontFamily: 'Picaflor-Bold',
         fontSize: 48,
         color: 'white',
+    },
+    wordsContainer: {
+        flexDirection: 'column',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-start',
+        maxHeight: 250,
+        alignItems: 'flex-start',
+        margin: 20,
+        width: '80%',
+    },
+    wordText: {
+        fontSize: 26,
+        color: 'white',
+        marginBottom: 10,
+        marginRight: 200,
     },
 });
