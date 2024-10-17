@@ -9,20 +9,24 @@ export default function UserEntry() {
     const [contact, setContact] = useState<string>('');
 
     const handlePressPlay = () => {
-        Alert.alert(
-            'Missing info',
-            'Name and/or Contact info not provided. Do you still want to play?',
-            [
-                {
-                    text: 'No',
-                    style: 'cancel'
-                },
-                {
-                    text: 'Yes',
-                    style: 'destructive'
-                }
-            ]
-        );
+        if (!name.length || !contact.length)
+            Alert.alert(
+                'Missing info',
+                'Name and/or Contact info not provided. Do you still want to play?',
+                [
+                    {
+                        text: 'No',
+                        style: 'cancel'
+                    },
+                    {
+                        text: 'Yes',
+                        style: 'destructive',
+                        onPress: () => router.navigate('/crossword')
+                    }
+                ]
+            );
+        else
+            router.navigate('/crossword');
     };
 
     return (
