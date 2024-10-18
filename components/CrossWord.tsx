@@ -56,7 +56,7 @@ export default function CrossWord() {
         Animated.timing(progress, {
             toValue: 1,
             duration: gameDuration,
-            useNativeDriver: false,
+            useNativeDriver: true,
         }).start();
 
         const countdownInterval = setInterval(() => {
@@ -258,6 +258,7 @@ export default function CrossWord() {
                 source={require('../assets/images/PSO_LOGO-01.png')} 
                 style={styles.logoImage}
             />
+            <Text style={styles.timer}>{remainingTime}</Text>
             {!gameStarted ?
                 <Pressable
                     onPress={startGame}
@@ -266,7 +267,6 @@ export default function CrossWord() {
                 </Pressable>
             :
                 <>
-                    <Text style={styles.timer}>{remainingTime}</Text>
                     <Animated.View style={[styles.progressBar, { width: progress.interpolate({
                         inputRange: [0, 1],
                         outputRange: [0, width]
