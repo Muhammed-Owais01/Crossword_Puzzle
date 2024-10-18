@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        top: '2%',
+        top: 15,
         left: '2%',
     },
 });

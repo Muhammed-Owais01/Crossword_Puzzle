@@ -53,7 +53,7 @@ export default function UserEntry() {
             // if file doesn't exist
             content = `name,contact,time,date,win\n`;
         } finally {
-            content += `${name},${contact},${time},${new Date().toISOString()},0\n`;
+            content += `${name.replace(',', ' ')},${contact.replace(',', ' ')},${time},${new Date().toISOString()},0\n`;
             console.log(content);
             await FileSystem.writeAsStringAsync(fileUri, content);
         }
@@ -121,6 +121,7 @@ export default function UserEntry() {
                     value={contact}
                     onChangeText={setContact}
                     style={styles.input}
+                    keyboardType='numeric'
                     placeholder="Contact:"
                     placeholderTextColor="black"
                 />
