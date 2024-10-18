@@ -11,7 +11,6 @@ export default function LoserScreen() {
     useEffect(() => {
         // Function to load and play the sound
         async function playSound() {
-            console.log('Loading Sound');
             const { sound } = await Audio.Sound.createAsync(
                 require('../assets/audio/crowd_boo.mp3')
             );

@@ -33,10 +33,9 @@ export default function CrossWord() {
         }))
     );
     const crossWordDataRef = useRef<C_Data[][]>(initialCrosswordData);
+    const bottomWordsRef = useRef<Bottom_Data[]>([]);
     const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
     const [render, setRender] = useState<boolean>(false);
-    const bottomWordsRef = useRef<Bottom_Data[]>([]);
-    // const [bottomWords, setBottomWords] = useState<Bottom_Data[]>([]);
     const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
     const [selectedAnswers, setSelectedAnswers] = useState<number>(0);
     const [direction, setDirection] = useState<boolean | null>(null);
@@ -48,8 +47,7 @@ export default function CrossWord() {
 
     // Sort words by length, descending
     const sortedAnswers = [
-        "DEO",
-        // "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
+        "DEO", "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
     ].sort((a, b) => b.length - a.length);
 
     const startGame = () => {
@@ -60,7 +58,11 @@ export default function CrossWord() {
             duration: gameDuration,
             useNativeDriver: false,
         }).start(() => {
-            router.navigate('/looser');
+            // console.log(gameWonRef.current)
+            // if (gameWonRef.current) {
+                
+            // } else router.navigate('/looser');
+            
         });
 
         const countdownInterval = setInterval(() => {
@@ -220,10 +222,12 @@ export default function CrossWord() {
             setSelectedAnswers(selected_answers);
             if (selected_answers === sortedAnswers.length) {
                 setGameStarted(false);
-                if (name && contact)
-                    router.navigate(`/winner?name=${name}&contact=${contact}`);
-                else
-                    router.navigate('/winner');
+                progress.stopAnimation(() => {
+                    if (name && contact)
+                        router.navigate(`/winner?name=${name}&contact=${contact}`);
+                    else
+                        router.navigate('/winner');
+                });
             }
         }
     }
@@ -246,6 +250,13 @@ export default function CrossWord() {
             }
         };
     }, [timer]);
+
+    useEffect(() => {
+        if (remainingTime == 0) {
+            router.navigate('/looser')
+            setGameStarted(false);
+        }
+    }, [remainingTime])
 
     return (
         <View style={styles.container}>
