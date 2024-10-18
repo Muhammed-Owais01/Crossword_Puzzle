@@ -44,14 +44,9 @@ export default function WinnerScreen() {
             const header = csvRecords[0];
             const dataRows = csvRecords.slice(1).reverse();
 
-            for (let i = 0; i < dataRows.length; i++) {
-                const fields = dataRows[i].split(',');
-                if (fields[4] === '0') {
-                    fields[4] = '1';
-                    dataRows[i] = fields.join(',');
-                    break;
-                }
-            }
+            const fields = dataRows[0].split(',');
+            fields[4] = '1';
+            dataRows[0] = fields.join(',');
 
             const newContent = [header, ...dataRows.reverse()].join('\n') + '\n';
             console.log(newContent);
