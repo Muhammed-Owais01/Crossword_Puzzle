@@ -39,7 +39,7 @@ export default function LoserScreen() {
             >
                 <View style={styles.centeredView}>
                     <Pressable onPress={() => router.navigate('/')}>
-                        <Text style={styles.text}>Home</Text>
+                        <Text style={styles.button}>HOME</Text>
                     </Pressable>
                 </View>
             </ImageBackground>
@@ -57,13 +57,15 @@ const styles = StyleSheet.create({
         height: height,
     },
     centeredView: {
-        position: 'absolute',
-        bottom: '20%',
-        left: '44%',
-        width: '70%',
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '80%',
     },
-    text: {
-        fontSize: 37,
+    button: {
+        padding: 10,
+        fontSize: 40,
         color: 'white',
+        letterSpacing: 5,
     },
 });
