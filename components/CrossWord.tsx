@@ -57,13 +57,7 @@ export default function CrossWord() {
             toValue: 1,
             duration: gameDuration,
             useNativeDriver: false,
-        }).start(() => {
-            // console.log(gameWonRef.current)
-            // if (gameWonRef.current) {
-                
-            // } else router.navigate('/looser');
-            
-        });
+        }).start();
 
         const countdownInterval = setInterval(() => {
             setRemainingTime(prev => {
@@ -224,9 +218,9 @@ export default function CrossWord() {
                 setGameStarted(false);
                 progress.stopAnimation(() => {
                     if (name && contact)
-                        router.navigate(`/winner?name=${name}&contact=${contact}`);
+                        router.replace(`/winner?name=${name}&contact=${contact}`);
                     else
-                        router.navigate('/winner');
+                        router.replace('/winner');
                 });
             }
         }
@@ -253,10 +247,10 @@ export default function CrossWord() {
 
     useEffect(() => {
         if (remainingTime == 0) {
-            router.navigate('/looser')
+            router.replace('/looser')
             setGameStarted(false);
         }
-    }, [remainingTime])
+    }, [remainingTime]);
 
     return (
         <View style={styles.container}>
