@@ -23,7 +23,7 @@ interface Bottom_Data {
 
 export default function CrossWord() {
     const navigation = useNavigation();
-    const { time }: { time?: number } = useLocalSearchParams();
+    const { time, name, contact }: { time?: number, name?: string, contact?: string } = useLocalSearchParams();
     const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
         Array(10).fill(null).map(() => ({
             letter: '',
@@ -44,10 +44,12 @@ export default function CrossWord() {
     const [progress] = useState(new Animated.Value(0)); // Timer progress bar
     const resetTime = 1000;
     const gameDuration = time ? time * 1000 : 30000;
+    const [remainingTime, setRemainingTime] = useState<number>(gameDuration / 1000);
 
     // Sort words by length, descending
     const sortedAnswers = [
-        "DEO", "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
+        "DEO",
+        // "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
     ].sort((a, b) => b.length - a.length);
 
     const startGame = () => {
@@ -60,6 +62,16 @@ export default function CrossWord() {
         }).start(() => {
             router.navigate('/looser');
         });
+
+        const countdownInterval = setInterval(() => {
+            setRemainingTime(prev => {
+                if (prev <= 1) {
+                    clearInterval(countdownInterval); // Stop at 0
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
     };
 
     const resetGridPresses = (rowIndex: number, colIndex: number) => {
@@ -208,7 +220,10 @@ export default function CrossWord() {
             setSelectedAnswers(selected_answers);
             if (selected_answers === sortedAnswers.length) {
                 setGameStarted(false);
-                router.navigate('/winner');
+                if (name && contact)
+                    router.navigate(`/winner?name=${name}&contact=${contact}`);
+                else
+                    router.navigate('/winner');
             }
         }
     }
@@ -224,15 +239,6 @@ export default function CrossWord() {
     }, []);
 
     useEffect(() => {
-        // navigation.addListener('beforeRemove', (e) => {
-        //     e.preventDefault();
-
-        //     if (gameStarted)
-        //         return;
-
-        //     navigation.dispatch(e.data.action);
-        // })
-
         return () => {
             // Reset the timer
             if (timer) {
@@ -254,10 +260,13 @@ export default function CrossWord() {
                     <Image source={require('../assets/images/Start.png')}/>
                 </Pressable>
             :
-                <Animated.View style={[styles.progressBar, { width: progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, width]
-                })}]} />
+                <>
+                    <Text style={styles.timer}>{remainingTime}</Text>
+                    <Animated.View style={[styles.progressBar, { width: progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, width]
+                    })}]} />
+                </>
         }
             <Image
                 source={require('../assets/images/MOTOR_OIL.png')} 
@@ -304,6 +313,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
         height: '100%',
         position: 'relative',
+    },
+    timer: {
+        position: 'absolute',
+        top: '5%',
+        color: 'white',
+        fontSize: 50,
+        fontWeight: '600',
     },
     logoImage: {
         position: 'absolute',

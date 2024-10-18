@@ -1,27 +1,30 @@
 import { Audio } from "expo-av";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Dimensions, ImageBackground, Pressable, Text, View, StyleSheet } from "react-native";
+import { Dimensions, ImageBackground, Pressable, Text, View, StyleSheet, Alert } from "react-native";
+import * as FileSystem from 'expo-file-system';
 
 const { width, height } = Dimensions.get('screen');
 
 export default function WinnerScreen() {
+    const { name, contact }: { name?: string, contact?: string } = useLocalSearchParams();
     const [sound, setSound] = useState<Audio.Sound>();
 
     useEffect(() => {
+
         // Function to load and play the sound
         async function playSound() {
-            console.log('Loading Sound');
             const { sound } = await Audio.Sound.createAsync(
                 require('../assets/audio/confetti_sound.mp3')
             );
             setSound(sound);
-
-            console.log('Playing Sound');
             await sound.playAsync();
         }
 
         playSound(); // Play sound on component mount
+
+        if (name && contact)
+            updateWinner();
 
         return () => {
             // Unload sound when component unmounts to avoid memory leaks and stop the sound
@@ -31,6 +34,34 @@ export default function WinnerScreen() {
             }
         };
     }, []);
+
+    const updateWinner = async () => {
+        try {
+            const filePath = `${FileSystem.documentDirectory}players_data.csv`;
+            const content = await FileSystem.readAsStringAsync(filePath);
+
+            const csvRecords = content.trim().split('\n');
+            const header = csvRecords[0];
+            const dataRows = csvRecords.slice(1).reverse();
+
+            for (let i = 0; i < dataRows.length; i++) {
+                const fields = dataRows[i].split(',');
+                if (fields[4] === '0') {
+                    fields[4] = '1';
+                    dataRows[i] = fields.join(',');
+                    break;
+                }
+            }
+
+            const newContent = [header, ...dataRows.reverse()].join('\n') + '\n';
+            console.log(newContent);
+            await FileSystem.writeAsStringAsync(filePath, newContent);
+
+            console.log('success');
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     return (
         <View style={styles.container}>

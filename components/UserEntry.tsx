@@ -33,7 +33,11 @@ export default function UserEntry() {
         }
 
         writeCsv()
-        .then(() => router.navigate(`/crossword?time=${time}`))
+        .then(() => {
+            router.navigate(`/crossword?time=${time}&name=${name}&contact=${contact}`);
+            setName('');
+            setContact('');
+        })
         .catch(console.log);
     };
 
@@ -44,12 +48,12 @@ export default function UserEntry() {
         let content: string = '';
         try {
             // if file exists
-            const file_content = await FileSystem.readAsStringAsync(fileUri);
-            content = `${file_content}${name},${contact}\n`;
+            content = await FileSystem.readAsStringAsync(fileUri);
         } catch (error: any) {
             // if file doesn't exist
-            content = `name,contact\n${name},${contact}\n`;
+            content = `name,contact,time,date,win\n`;
         } finally {
+            content += `${name},${contact},${time},${new Date().toISOString()},0\n`;
             console.log(content);
             await FileSystem.writeAsStringAsync(fileUri, content);
         }
@@ -122,7 +126,7 @@ export default function UserEntry() {
                 />
                 <View style={styles.inputContainer}>
                     <Pressable onPress={handlePressPlay}>
-                        <Text style={styles.button}>Play</Text>
+                        <Text style={styles.button}>PLAY</Text>
                     </Pressable>
                 </View>
             </View>
@@ -164,8 +168,10 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     button: {
-        fontSize: 35,
+        padding: 10,
+        fontSize: 40,
         color: 'white',
         alignSelf: 'center',
+        letterSpacing: 5,
     },
 });
