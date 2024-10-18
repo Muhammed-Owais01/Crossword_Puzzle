@@ -131,6 +131,11 @@ export default function UserEntry() {
                     </Pressable>
                 </View>
             </View>
+            <Text
+                style={styles.promo}
+            >
+                Powered by www.getsmartapps.com
+            </Text>
         </View>
     );
 }
@@ -141,6 +146,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         backgroundColor: 'black',
+    },
+    promo: {
+        color: 'gray',
+        fontSize: 15,
+        position: 'absolute',
+        bottom: 5,
     },
     logoContainer: {
         width: '100%',

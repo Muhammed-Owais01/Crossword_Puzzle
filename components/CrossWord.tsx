@@ -40,7 +40,6 @@ export default function CrossWord() {
     const [selectedAnswers, setSelectedAnswers] = useState<number>(0);
     const [direction, setDirection] = useState<boolean | null>(null);
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
-    const [progress] = useState(new Animated.Value(0)); // Timer progress bar
     const resetTime = 1000;
     const gameDuration = time ? time * 1000 : 30000;
     const [remainingTime, setRemainingTime] = useState<number>(gameDuration / 1000);
@@ -52,12 +51,6 @@ export default function CrossWord() {
 
     const startGame = () => {
         setGameStarted(true);
-
-        Animated.timing(progress, {
-            toValue: 1,
-            duration: gameDuration,
-            useNativeDriver: true,
-        }).start();
 
         const countdownInterval = setInterval(() => {
             setRemainingTime(prev => {
@@ -216,12 +209,10 @@ export default function CrossWord() {
             setSelectedAnswers(selected_answers);
             if (selected_answers === sortedAnswers.length) {
                 setGameStarted(false);
-                progress.stopAnimation(() => {
-                    if (name && contact)
-                        router.replace(`/winner?name=${name}&contact=${contact}`);
-                    else
-                        router.replace('/winner');
-                });
+                if (name && contact)
+                    router.replace(`/winner?name=${name}&contact=${contact}`);
+                else
+                    router.replace('/winner');
             }
         }
     }
@@ -258,7 +249,7 @@ export default function CrossWord() {
                 source={require('../assets/images/PSO_LOGO-01.png')} 
                 style={styles.logoImage}
             />
-            <Text style={styles.timer}>{remainingTime}</Text>
+            
             {!gameStarted ?
                 <Pressable
                     onPress={startGame}
@@ -266,13 +257,8 @@ export default function CrossWord() {
                     <Image source={require('../assets/images/Start.png')}/>
                 </Pressable>
             :
-                <>
-                    <Animated.View style={[styles.progressBar, { width: progress.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, width]
-                    })}]} />
-                </>
-        }
+                <Text style={styles.timer}>{remainingTime}</Text>
+            }
             <Image
                 source={require('../assets/images/MOTOR_OIL.png')} 
                 style={styles.motorOilImage}
@@ -321,7 +307,7 @@ const styles = StyleSheet.create({
     },
     timer: {
         position: 'absolute',
-        top: '5%',
+        top: '15%',
         color: 'white',
         fontSize: 50,
         fontWeight: '600',
