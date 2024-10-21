@@ -2,7 +2,7 @@ import { router, useLocalSearchParams, useNavigation, usePathname } from "expo-r
 import { useEffect, useRef, useState } from "react";
 import { Animated, Image, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
 
-const { width } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('window');
 
 interface C_Data {
     letter: string;
@@ -245,51 +245,67 @@ export default function CrossWord() {
 
     return (
         <View style={styles.container}>
-            <Image
-                source={require('../assets/images/PSO_LOGO-01.png')} 
-                style={styles.logoImage}
-            />
-            
-            {!gameStarted ?
-                <Pressable
-                    onPress={startGame}
-                    style={styles.startButton}>
-                    <Image source={require('../assets/images/Start.png')}/>
-                </Pressable>
-            :
-                <Text style={styles.timer}>{remainingTime}</Text>
-            }
-            <Image
-                source={require('../assets/images/MOTOR_OIL.png')} 
-                style={styles.motorOilImage}
-            />
-            <View style={styles.crosswordContainer}>
-                {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-                    <View 
-                        key={rowIndex}
-                        style={styles.rowContainer}
-                    >
-                    {row.map((cell, colIndex) => (
-                        <Pressable 
-                            key={colIndex} 
-                            onPress={() => gameStarted ? handleCellPress(rowIndex, colIndex) : null } 
-                            style={[
-                                styles.cell,
-                                { backgroundColor: '#c18500' },
-                                cell.correct ? styles.bgColorLightGreen : cell.pressed ? styles.bgColorLightOrange : cell.highlighted ? styles.bgColorLightBlue : { backgroundColor: '#c18500' }
-                            ]}
-                        >
-                        <Text style={styles.cellText}>{cell.letter}</Text>
+            <View style={styles.header}>    
+                <View style={styles.images}>
+                    <Image
+                        source={require('../assets/images/PSO_LOGO-01.png')} 
+                        style={[styles.image, styles.psoLogo]}
+                        resizeMode="contain"
+                    />
+                    <Image
+                        source={require('../assets/images/MOTOR_OIL.png')} 
+                        style={[styles.image, styles.motorOilImage]}
+                        resizeMode="contain"
+                    />
+                </View>
+                
+                <View style={styles.controls}>
+                    {!gameStarted ?
+                        <Pressable
+                            onPress={startGame}
+                            style={styles.startButton}>
+                            <Image
+                                style={styles.startButtonLogo}
+                                source={require('../assets/images/Start.png')}
+                                resizeMode="contain"
+                            />
                         </Pressable>
+                    :
+                        <Text style={styles.timer}>{remainingTime}</Text>
+                    }
+                </View>
+            </View>
+            <View style={styles.main}>
+                <View style={styles.crosswordContainer}>
+                    {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
+                        <View 
+                            key={rowIndex}
+                            style={styles.rowContainer}
+                        >
+                        {row.map((cell, colIndex) => (
+                            <Pressable 
+                                key={colIndex} 
+                                onPress={() => gameStarted ? handleCellPress(rowIndex, colIndex) : null } 
+                                style={[
+                                    styles.cell,
+                                    { backgroundColor: '#c18500' },
+                                    cell.correct ? styles.bgColorLightGreen : cell.pressed ? styles.bgColorLightOrange : cell.highlighted ? styles.bgColorLightBlue : { backgroundColor: '#c18500' }
+                                ]}
+                            >
+                                <Text style={styles.cellText}>{cell.letter}</Text>
+                            </Pressable>
+                        ))}
+                        </View>
                     ))}
-                    </View>
-                ))}
+                </View>
             </View>
-            <View style={styles.wordsContainer}>
-                {bottomWordsRef.current.map((word, index) => (
-                    <Text key={index} style={[styles.wordText, word.pressed ? styles.colorGreen : styles.colorWhite]}>{word.word}</Text>
-                ))}
-            </View>
+            <View style={styles.footer}>
+                <View style={styles.wordsContainer}>
+                    {bottomWordsRef.current.map((word, index) => (
+                        <Text key={index} style={[styles.wordText, word.pressed ? styles.colorGreen : styles.colorWhite]}>{word.word}</Text>
+                    ))}
+                </View>
+            </View>   
         </View>
     );
 }
@@ -297,57 +313,62 @@ export default function CrossWord() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 50,
         backgroundColor: 'black',
-        height: '100%',
-        position: 'relative',
     },
-    timer: {
-        position: 'absolute',
-        top: '15%',
-        color: 'white',
-        fontSize: 50,
-        fontWeight: '600',
+    header: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
     },
-    logoImage: {
-        position: 'absolute',
-        top: '3%',
-        left: '3%',
-        width: 108,
-        height: 108,
+    images: {
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
-    startButton: {
-        position: 'absolute',
-        top: '10%',
+    image: {
+        flexDirection: 'row',
+        marginTop: width * 0.025,
+        marginHorizontal: width * 0.03,
     },
-    progressBar: {
-        height: 25,
-        backgroundColor: 'green',
-        position: 'absolute',
-        top: '20%',
-        left: 0,
+    psoLogo: {
+        height: height * 0.1,
+        width: width * 0.15,
     },
     motorOilImage: {
-        position: 'absolute',
-        top: '5%',
-        right: '5%'
+        height: height * 0.1,
+        width: width * 0.4
     },
-    crosswordContainer: {
-        marginTop: 300,
+    controls: {
+        alignItems: 'center',
+        width: '100%',
+        height: height * 0.10,
     },
+    timer: {
+        color: 'white',
+        fontSize: height * 0.05,
+        fontWeight: '600',
+    },
+    startButton: {},
+    startButtonLogo: {
+        height: height * 0.15,
+        width: width * 0.6,
+    },
+    main: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        flex: 4,
+    },
+    crosswordContainer: {},
     rowContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
         width: '100%',
     },
     cell: {
-        width: 70,
-        height: 70,
+        width: width * 0.09,
+        height: height * 0.055,
         alignItems: 'center',
-        borderWidth: 2,
+        borderWidth: height * 0.0016,
     },
     borderGreen: {
         borderColor: 'green',
@@ -378,23 +399,26 @@ const styles = StyleSheet.create({
     },
     cellText: {
         fontFamily: 'Picaflor-Bold',
-        fontSize: 48,
+        fontSize: height * 0.035,
         color: 'white',
     },
-    wordsContainer: {
-        flexDirection: 'column',
-        flexWrap: 'wrap',
-        justifyContent: 'flex-start',
-        maxHeight: '15%',
-        alignItems: 'flex-start',
-        margin: 20,
+    footer: {
+        flex: 1,
         width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    wordsContainer: {
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        width: '90%',
     },
     wordText: {
-        fontSize: 30,
+        marginHorizontal: width * 0.03,
+        fontSize: height * 0.027,
         fontFamily: 'Poppins-Medium',
         fontWeight: '600',
         color: 'white',
-        marginRight: 200,
     },
 });

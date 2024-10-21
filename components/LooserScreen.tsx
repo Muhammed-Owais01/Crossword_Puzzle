@@ -12,7 +12,7 @@ export default function LoserScreen() {
         // Function to load and play the sound
         async function playSound() {
             const { sound } = await Audio.Sound.createAsync(
-                require('../assets/audio/crowd_boo.mp3')
+                require('../assets/audio/aww.mp3')
             );
             setSound(sound);
             
@@ -23,10 +23,8 @@ export default function LoserScreen() {
 
         return () => {
             // Unload sound when component unmounts to avoid memory leaks and stop the sound
-            if (sound) {
-                sound.stopAsync();
-                sound.unloadAsync();
-            }
+            sound?.stopAsync();
+            sound?.unloadAsync();
         };
     }, []);
 

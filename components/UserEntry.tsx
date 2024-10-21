@@ -1,11 +1,10 @@
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Dimensions, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
 import Options from './Options';
 
-const { width, height } = Dimensions.get('screen')
+const { width, height } = Dimensions.get('window')
 
 export default function UserEntry() {
     const [name, setName] = useState<string>('');
@@ -63,51 +62,21 @@ export default function UserEntry() {
         <View style={styles.container}>
             <Options time={time} setTime={setTime} />
             <View style={styles.logoContainer}>
-                <View
-                    style={[
-                        {
-                            width: '100%',
-                            height: '60%'
-                        },
-                        styles.imageContainer
-                    ]}
-                >
-                    <Image
-                        source={require('../assets/images/PSO_LOGO-01.png')}
-                        style={styles.image}
-                        resizeMode="contain"
-                    />
-                </View>
-                <View
-                    style={[
-                        {
-                            width: '100%',
-                            height: '40%'
-                        },
-                        styles.imageContainer
-                    ]}
-                >
-                    <Image
-                        source={require('../assets/images/MOTOR_OIL.png')}
-                        style={styles.image}
-                        resizeMode="contain"
-                    />
-                </View>
-                <View 
-                    style={[
-                        {
-                            width: '100%',
-                            height: '70%',
-                        },
-                        styles.imageContainer
-                    ]}
-                >
-                    <Image
-                        source={require('../assets/images/word_search.png')}
-                        style={styles.image}
-                        resizeMode="contain"
-                    />
-                </View>
+                <Image
+                    source={require('../assets/images/PSO_LOGO-01.png')}
+                    style={[styles.image, styles.psoLogo]}
+                    resizeMode="contain"
+                />
+                <Image
+                    source={require('../assets/images/MOTOR_OIL.png')}
+                    style={[styles.image, styles.motorOilLogo]}
+                    resizeMode="contain"
+                />
+                <Image
+                    source={require('../assets/images/word_search.png')}
+                    style={[styles.image, styles.wordSearchLogo]}
+                    resizeMode="contain"
+                />
             </View>
             <View style={styles.inputContainer}>
                 <TextInput
@@ -125,11 +94,9 @@ export default function UserEntry() {
                     placeholder="Contact:"
                     placeholderTextColor="black"
                 />
-                <View style={styles.inputContainer}>
-                    <Pressable onPress={handlePressPlay}>
-                        <Text style={styles.button}>PLAY</Text>
-                    </Pressable>
-                </View>
+                <Pressable onPress={handlePressPlay}>
+                    <Text style={styles.button}>PLAY</Text>
+                </Pressable>
             </View>
             <Text
                 style={styles.promo}
@@ -143,47 +110,57 @@ export default function UserEntry() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'space-around',
-        alignItems: 'center',
         backgroundColor: 'black',
     },
     promo: {
         color: 'gray',
-        fontSize: 15,
+        fontSize: height * 0.013,
         position: 'absolute',
-        bottom: 5,
+        bottom: height * 0.005,
+        alignSelf: 'center',
     },
     logoContainer: {
-        width: '100%',
-        height: '20%',
-    },
-    imageContainer: {
-        marginTop: 30
+        flex: 7/4,
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        // backgroundColor: 'gray',
     },
     image: {
-        width: '100%',
-        height: '100%',
+    },
+    psoLogo: {
+        height: height * 0.12,
+        width: width * 0.2
+    },
+    motorOilLogo: {
+        marginTop: height * 0.02,
+        height: height * 0.1,
+        width: width * 0.6
+    },
+    wordSearchLogo: {
+        width: width * 0.7,
+        height: height * 0.2
     },
     inputContainer: {
-        width: '100%',
+        flex: 1,
+        // backgroundColor: 'darkgray',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
     },
     input: {
-        fontSize: 35,
+        fontSize: height * 0.03,
         fontWeight: '700',
         width: width * 0.8,
         height: height * 0.06,
-        margin: '3%',
-        paddingHorizontal: '2%',
-        borderRadius: 15,
+        paddingHorizontal: width * 0.025,
+        borderRadius: height/width * 12,
         backgroundColor: 'white',
         color: 'black',
     },
     button: {
-        padding: 10,
-        fontSize: 40,
+        padding: height * 0.01,
+        fontSize: height * 0.04,
         color: 'white',
         alignSelf: 'center',
-        letterSpacing: 5,
+        letterSpacing: width * 0.01,
     },
 });
