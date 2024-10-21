@@ -236,8 +236,8 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        bottom: height * 0.01,
-        left: width * 0.01,
+        bottom: height * 0.005,
+        left: width * 0.02,
         zIndex: 999,
     },
     info: {
