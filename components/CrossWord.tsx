@@ -1,6 +1,8 @@
-import { router, useLocalSearchParams, useNavigation, usePathname } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Image, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
+import { Gesture, GestureDetector, GestureHandlerRootView, GestureStateChangeEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
+import Animated from "react-native-reanimated";
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,7 +24,8 @@ interface Bottom_Data {
 }
 
 export default function CrossWord() {
-    const navigation = useNavigation();
+    const cellHeight = height * 0.055;
+    const cellWidth = width * 0.09;
     const { time, name, contact }: { time?: number, name?: string, contact?: string } = useLocalSearchParams();
     const initialCrosswordData: C_Data[][] = Array(10).fill(null).map(() =>
         Array(10).fill(null).map(() => ({
@@ -41,7 +44,8 @@ export default function CrossWord() {
     const [direction, setDirection] = useState<boolean | null>(null);
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
     const resetTime = 1000;
-    const gameDuration = time ? time * 1000 : 30000;
+    // const gameDuration = time ? time * 1000 : 30000;
+    const gameDuration = 10000000;
     const [remainingTime, setRemainingTime] = useState<number>(gameDuration / 1000);
 
     // Sort words by length, descending
@@ -82,7 +86,7 @@ export default function CrossWord() {
             const lastCell = selectedCells[length - 1];
 
             // if pressing the same cell, do nothing
-            if (lastCell.row === rowIndex && lastCell.col === colIndex)
+            if (JSON.stringify(selectedCells).includes(JSON.stringify({ row: rowIndex, col: colIndex })))
                 return;
 
             // if two cells have been selected, determine the direction (horizontal or vertical)
@@ -243,8 +247,23 @@ export default function CrossWord() {
         }
     }, [remainingTime]);
 
+    const handleGestureSelect = (e: any) => {
+        if (!gameStarted)
+            return;
+        const colIndex = Math.floor(e.x / cellWidth);
+        const rowIndex = Math.floor(e.y / cellHeight);
+        if (rowIndex >= 0 && rowIndex < 10 && colIndex >= 0 && colIndex < 10)
+            handleCellPress(rowIndex, colIndex);
+    };
+
+    const myGesture = Gesture.Pan()
+        .onStart(handleGestureSelect)
+        .onChange(handleGestureSelect)
+        .onEnd(handleGestureSelect)
+        .runOnJS(true);
+
     return (
-        <View style={styles.container}>
+        <GestureHandlerRootView style={styles.container}>
             <View style={styles.header}>    
                 <View style={styles.images}>
                     <Image
@@ -276,28 +295,30 @@ export default function CrossWord() {
                 </View>
             </View>
             <View style={styles.main}>
+                <GestureDetector gesture={myGesture}>
                 <View style={styles.crosswordContainer}>
-                    {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
-                        <View 
-                            key={rowIndex}
-                            style={styles.rowContainer}
+                {crossWordDataRef.current && crossWordDataRef.current.map((row, rowIndex) => (
+                    <View
+                        key={rowIndex}
+                        style={styles.rowContainer}
+                    >
+                    {row.map((cell, colIndex) => (
+                        <Pressable 
+                            key={`${rowIndex}-${colIndex}`} 
+                            onPress={() => gameStarted ? handleCellPress(rowIndex, colIndex) : null } 
+                            style={[
+                                styles.cell,
+                                { backgroundColor: '#c18500' },
+                                cell.correct ? styles.bgColorLightGreen : cell.pressed ? styles.bgColorLightOrange : cell.highlighted ? styles.bgColorLightBlue : { backgroundColor: '#c18500' }
+                            ]}
                         >
-                        {row.map((cell, colIndex) => (
-                            <Pressable 
-                                key={colIndex} 
-                                onPress={() => gameStarted ? handleCellPress(rowIndex, colIndex) : null } 
-                                style={[
-                                    styles.cell,
-                                    { backgroundColor: '#c18500' },
-                                    cell.correct ? styles.bgColorLightGreen : cell.pressed ? styles.bgColorLightOrange : cell.highlighted ? styles.bgColorLightBlue : { backgroundColor: '#c18500' }
-                                ]}
-                            >
-                                <Text style={styles.cellText}>{cell.letter}</Text>
-                            </Pressable>
-                        ))}
-                        </View>
+                            <Text style={styles.cellText}>{cell.letter}</Text>
+                        </Pressable>
                     ))}
+                    </View>
+                ))}
                 </View>
+                </GestureDetector>
             </View>
             <View style={styles.footer}>
                 <View style={styles.wordsContainer}>
@@ -306,7 +327,7 @@ export default function CrossWord() {
                     ))}
                 </View>
             </View>   
-        </View>
+        </GestureHandlerRootView>
     );
 }
 
@@ -370,6 +391,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderWidth: height * 0.0016,
     },
+    cellText: {
+        fontFamily: 'Picaflor-Bold',
+        fontSize: height * 0.032,
+        color: 'white',
+    },
     borderGreen: {
         borderColor: 'green',
     },
@@ -395,11 +421,6 @@ const styles = StyleSheet.create({
         color: 'green',
     },
     colorWhite: {
-        color: 'white',
-    },
-    cellText: {
-        fontFamily: 'Picaflor-Bold',
-        fontSize: height * 0.035,
         color: 'white',
     },
     footer: {
