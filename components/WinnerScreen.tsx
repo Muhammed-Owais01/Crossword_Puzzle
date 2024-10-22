@@ -90,14 +90,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: '80%',
     },
-    text: {
-        fontSize: 37,
-        color: 'white',
-    },
     button: {
-        padding: 10,
-        fontSize: 40,
+        fontSize: height * 0.04,
         color: 'white',
-        letterSpacing: 5,
+        letterSpacing: width * 0.01,
     },
 });

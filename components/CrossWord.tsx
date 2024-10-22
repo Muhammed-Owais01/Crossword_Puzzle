@@ -17,11 +17,6 @@ interface Pos {
     col: number;
 }
 
-interface Bottom_Data {
-    word: string,
-    pressed: boolean
-}
-
 export default function CrossWord() {
     const cellHeight = height * 0.055;
     const cellWidth = width * 0.09;
@@ -35,20 +30,21 @@ export default function CrossWord() {
         }))
     );
     const crossWordDataRef = useRef<C_Data[][]>(initialCrosswordData);
-    const bottomWordsRef = useRef<Bottom_Data[]>([]);
+    const wordsMapRef = useRef<Map<string, Pos[]>>(new Map<string, Pos[]>);
+    const selectedAnswersRef = useRef<Set<string>>(new Set<string>);
     const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
     const [render, setRender] = useState<boolean>(false);
     const [selectedCells, setSelectedCells] = useState<Pos[]>([]);
-    const [selectedAnswers, setSelectedAnswers] = useState<number>(0);
     const [direction, setDirection] = useState<boolean | null>(null);
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
-    const resetTime = 1000;
+    const resetTime = 800;
     const gameDuration = time ? time * 1000 : 30000;
     const [remainingTime, setRemainingTime] = useState<number>(gameDuration / 1000);
 
     // Sort words by length, descending
     const sortedAnswers = [
-        "DEO", "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
+        "DEO",
+        // "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
     ].sort((a, b) => b.length - a.length);
 
     const startGame = () => {
@@ -150,16 +146,19 @@ export default function CrossWord() {
 
     // Place the word on the grid
     const placeWord = (grid: C_Data[][], word: string, row: number, col: number, isHorizontal: boolean) => {
+        const res: Pos[] = [];
         if (isHorizontal) {
             for (let i = 0; i < word.length; i++) {
                 grid[row][col + i].letter = word[i]; // Place the letter on the grid horizontally
+                res.push({ row, col: col + i });
             }
         } else {
             for (let i = 0; i < word.length; i++) {
                 grid[row + i][col].letter = word[i]; // Place the letter on the grid vertically
+                res.push({ row: row + i, col });
             }
         }
-        // return grid;
+        return res;
     };
 
     // Helper function to generate a random letter
@@ -179,7 +178,7 @@ export default function CrossWord() {
                 const col = Math.floor(Math.random() * crossWordDataRef.current[0].length);
 
                 if (canPlaceWord(crossWordDataRef.current, word, row, col, isHorizontal)) {
-                    placeWord(crossWordDataRef.current, word, row, col, isHorizontal);
+                    wordsMapRef.current.set(word, placeWord(crossWordDataRef.current, word, row, col, isHorizontal));
                     placed = true; // Mark the word as placed
                 }
             }
@@ -201,31 +200,37 @@ export default function CrossWord() {
     // Called to check if a user has reached an answer
     const confirmAnswers = (selectedCells: Pos[]) => {
         // Form a string of selected words
-        const combinedString = selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('')
-        // If the string is in answers then make its correct as true
-        if (sortedAnswers.includes(combinedString)) {
-            selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].correct = true);
-            const index = bottomWordsRef.current.findIndex(item => item.word === combinedString);
-            if (index !== -1) bottomWordsRef.current[index].pressed = true;
-            const selected_answers: number = selectedAnswers + 1;
-            setSelectedAnswers(selected_answers);
-            if (selected_answers === sortedAnswers.length) {
-                setGameStarted(false);
-                if (name && contact)
-                    router.replace(`/winner?name=${name}&contact=${contact}`);
-                else
-                    router.replace('/winner');
+        const combinedString = selectedCells.map(cell => crossWordDataRef.current[cell.row][cell.col].letter).join('');
+        if (wordsMapRef.current.has(combinedString)) {
+            const wordPos: Pos[] = wordsMapRef.current.get(combinedString) as Pos[];
+            let flag = true;
+            for (let i = 0; i < selectedCells.length; ++i) {
+                const s_pos = selectedCells[i];
+                const w_pos = wordPos[i];
+
+                if (s_pos.col != w_pos.col || s_pos.row != w_pos.row) {
+                    flag = false;
+                    break;
+                }
             }
+
+            if (flag) {
+                selectedAnswersRef.current.add(combinedString);
+                selectedCells.forEach(cell => crossWordDataRef.current[cell.row][cell.col].correct = true);
+            }
+        }
+
+        if (selectedAnswersRef.current.size === sortedAnswers.length) {
+            setGameStarted(false);
+            if (name && contact)
+                router.replace(`/winner?name=${name}&contact=${contact}`);
+            else
+                router.replace('/winner');
         }
     }
 
     // The moment component mounts, load the data
     useEffect(() => {
-        const bottomDataArray: Bottom_Data[] = sortedAnswers.map(answer => ({
-            word: answer,
-            pressed: false,
-        }))
-        bottomWordsRef.current = bottomDataArray;
         placeAnswers(sortedAnswers);
     }, []);
 
@@ -320,8 +325,8 @@ export default function CrossWord() {
             </View>
             <View style={styles.footer}>
                 <View style={styles.wordsContainer}>
-                    {bottomWordsRef.current.map((word, index) => (
-                        <Text key={index} style={[styles.wordText, word.pressed ? styles.colorGreen : styles.colorWhite]}>{word.word}</Text>
+                    {sortedAnswers.map((word, index) => (
+                        <Text key={index} style={[styles.wordText, selectedAnswersRef.current.has(word) ? styles.colorGreen : styles.colorWhite]}>{word}</Text>
                     ))}
                 </View>
             </View>   
