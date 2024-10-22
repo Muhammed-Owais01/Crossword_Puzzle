@@ -43,8 +43,7 @@ export default function CrossWord() {
 
     // Sort words by length, descending
     const sortedAnswers = [
-        "DEO",
-        // "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
+        "DEO", "CARIENT", "BIKE", "CAR", "TYRE", "BLAZE", "MILEAGE", "FUEL", "JOURNEY", "OIL"
     ].sort((a, b) => b.length - a.length);
 
     const startGame = () => {
