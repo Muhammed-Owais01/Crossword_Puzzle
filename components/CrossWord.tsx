@@ -1,8 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Image, Pressable, StyleSheet, Text, View, Dimensions } from "react-native";
-import { Gesture, GestureDetector, GestureHandlerRootView, GestureStateChangeEvent, PanGestureHandlerEventPayload } from "react-native-gesture-handler";
-import Animated from "react-native-reanimated";
+import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,8 +43,7 @@ export default function CrossWord() {
     const [direction, setDirection] = useState<boolean | null>(null);
     const [gameStarted, setGameStarted] = useState<boolean>(false); // Tracks game state
     const resetTime = 1000;
-    // const gameDuration = time ? time * 1000 : 30000;
-    const gameDuration = 10000000;
+    const gameDuration = time ? time * 1000 : 30000;
     const [remainingTime, setRemainingTime] = useState<number>(gameDuration / 1000);
 
     // Sort words by length, descending
