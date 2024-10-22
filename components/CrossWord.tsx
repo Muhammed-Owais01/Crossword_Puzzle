@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     },
     startButton: {},
     startButtonLogo: {
-        height: height * 0.15,
+        height: height * 0.13,
         width: width * 0.6,
     },
     main: {
